@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "bundler/setup"
+require "simple_metrics"
+require "daemons"
+
+options = {
+	:backtrace  => true,
+	:log_output => true,
+	:dir_mode   => :script
+}
+
+Daemons.run_proc("simple_metrics", options) do
+	SimpleMetrics::Server.new.start
+end
+
+
