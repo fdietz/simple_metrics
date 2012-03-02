@@ -8,42 +8,42 @@ module SimpleMetrics
     describe "#parse" do
 
       it "parses increment counter" do
-        stats = Stats.parse("com.example.test1:1|c")
+        stats = DataPoint.parse("com.example.test1:1|c")
         stats.name.should == "com.example.test1"
         stats.value.should == 1
         stats.should be_counter
       end
 
       it "parses decrement counter" do
-        stats = Stats.parse("com.example.test1:-1|c")
+        stats = DataPoint.parse("com.example.test1:-1|c")
         stats.name.should == "com.example.test1"
         stats.value.should == -1
         stats.should be_counter
       end
 
       it "parses counter with sample rate" do
-        stats = Stats.parse("com.example.test2:5|c|@0.1")
+        stats = DataPoint.parse("com.example.test2:5|c|@0.1")
         stats.name.should == "com.example.test2"
         stats.value.should == 50
         stats.should be_counter
       end
 
       it "parses increment gauge" do
-        stats = Stats.parse("com.example.test3:5|g")
+        stats = DataPoint.parse("com.example.test3:5|g")
         stats.name.should == "com.example.test3"
         stats.value.should == 5
         stats.should be_gauge
       end
 
       it "parses increment gauge with sample rate" do
-        stats = Stats.parse("com.example.test3:5|g|@0.1")
+        stats = DataPoint.parse("com.example.test3:5|g|@0.1")
         stats.name.should == "com.example.test3"
         stats.value.should == 50
         stats.should be_gauge
       end
 
       it "parses increment timing" do
-        stats = Stats.parse("com.example.test4:44|ms")
+        stats = DataPoint.parse("com.example.test4:44|ms")
         stats.name.should == "com.example.test4"
         stats.value.should == 44
         stats.should be_timing

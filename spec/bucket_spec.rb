@@ -43,7 +43,7 @@ module SimpleMetrics
       end
 
       let(:stats) do
-        Stats.create_counter(:name => "key1", :value => 5)
+        DataPoint.create_counter(:name => "key1", :value => 5)
       end
 
       it "saves given data in bucket" do
@@ -71,9 +71,9 @@ module SimpleMetrics
 
       describe "#find_all_by_name" do
         it "returns all stats for given name" do
-          stats_same1 =  Stats.create_counter(:name => "key1", :value => 5)
-          stats_same2 =  Stats.create_counter(:name => "key1", :value => 3)
-          stats_different = Stats.create_counter(:name => "key2", :value => 3)
+          stats_same1 =  DataPoint.create_counter(:name => "key1", :value => 5)
+          stats_same2 =  DataPoint.create_counter(:name => "key1", :value => 3)
+          stats_different = DataPoint.create_counter(:name => "key2", :value => 3)
 
           bucket.save(stats_same1, ts)
           bucket.save(stats_same2, ts)
@@ -87,8 +87,8 @@ module SimpleMetrics
 
       describe "#find_all_in_ts" do
         it "returns all stats in given timestamp" do
-          stats1  =  Stats.create_counter(:name => "key1", :value => 5)
-          stats2  =  Stats.create_counter(:name => "key2", :value => 3)
+          stats1  =  DataPoint.create_counter(:name => "key1", :value => 5)
+          stats2  =  DataPoint.create_counter(:name => "key2", :value => 3)
 
           bucket.save(stats1, ts)
           bucket.save(stats2, bucket.next_ts_bucket(ts))
@@ -105,10 +105,10 @@ module SimpleMetrics
 
       describe "#find_all_in_ts_by_name" do
         it "returns all stats for given name and timestamp" do
-          stats1a  =  Stats.create_counter(:name => "key1", :value => 5)
-          stats1b  =  Stats.create_counter(:name => "key1", :value => 7)
-          stats2   =  Stats.create_counter(:name => "key2", :value => 7)
-          stats1_different_ts   =  Stats.create_counter(:name => "key1", :value => 3)
+          stats1a  =  DataPoint.create_counter(:name => "key1", :value => 5)
+          stats1b  =  DataPoint.create_counter(:name => "key1", :value => 7)
+          stats2   =  DataPoint.create_counter(:name => "key2", :value => 7)
+          stats1_different_ts   =  DataPoint.create_counter(:name => "key1", :value => 3)
 
           bucket.save(stats1a, ts)
           bucket.save(stats1b, ts)
@@ -131,9 +131,9 @@ module SimpleMetrics
       end
 
       it "aggregates all stats" do
-        stats1a  =  Stats.create_counter(:name => "key1", :value => 5)
-        stats1b  =  Stats.create_counter(:name => "key1", :value => 7)
-        stats2   =  Stats.create_counter(:name => "key2", :value => 3)
+        stats1a  =  DataPoint.create_counter(:name => "key1", :value => 5)
+        stats1b  =  DataPoint.create_counter(:name => "key1", :value => 7)
+        stats2   =  DataPoint.create_counter(:name => "key2", :value => 3)
 
         bucket2 = Bucket[1]
         ts_at_insert = bucket2.previous_ts_bucket(ts)
@@ -156,16 +156,16 @@ module SimpleMetrics
       end
     end # describe "#aggregate_all"
 
-    describe "#flush_stats" do
+    describe "#flush_data_points" do
       before do
-        stats1 = Stats.create_counter(:name => "key1", :value => 5)
-        stats2 = Stats.create_counter(:name => "key1", :value => 7)
-        stats3 = Stats.create_counter(:name => "key2", :value => 3)
+        stats1 = DataPoint.create_counter(:name => "key1", :value => 5)
+        stats2 = DataPoint.create_counter(:name => "key1", :value => 7)
+        stats3 = DataPoint.create_counter(:name => "key2", :value => 3)
         @stats = [stats1, stats2, stats3]
       end
 
       it "saves all stats in finest/first bucket" do
-        Bucket.flush_stats(@stats)
+        Bucket.flush_data_points(@stats)
 
         results = bucket.find_all_in_ts(ts)
         results.should have(3).items
@@ -173,9 +173,9 @@ module SimpleMetrics
 
       it "calls aggregate_all afterwards" do
         mock(Bucket).aggregate_all(ts)
-        Bucket.flush_stats(@stats)
+        Bucket.flush_data_points(@stats)
       end
-    end # describe "#flush_stats"
+    end # describe "#flush_data_points"
 
   end
 end

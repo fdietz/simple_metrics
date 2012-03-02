@@ -21,13 +21,13 @@ module SimpleMetrics
         Bucket.all.sort_by! { |r| r.seconds }[1..-1]
       end
 
-      def flush_stats(stats)
-        return if stats.empty?
-        SimpleMetrics.logger.info "#{Time.now} Flushing #{stats.count} counters to MongoDB"
+      def flush_data_points(data_points)
+        return if data_points.empty?
+        SimpleMetrics.logger.info "#{Time.now} Flushing #{data_points.count} counters to MongoDB"
 
         ts = Time.now.utc.to_i
         bucket = Bucket.first
-        stats.each { |data| bucket.save(data, ts) }
+        data_points.each { |data| bucket.save(data, ts) }
         
         self.aggregate_all(ts)
       end
@@ -41,10 +41,10 @@ module SimpleMetrics
           SimpleMetrics.logger.debug "Aggregating #{bucket.name} #{previous_ts}....#{current_ts} (#{humanized_timestamp(previous_ts)}..#{humanized_timestamp(current_ts)})"
 
           unless bucket.stats_exist_in_previous_ts?(previous_ts)
-            stats_coll = self.first.find_all_in_ts_range(previous_ts, current_ts)
-            stats_coll.group_by { |stats| stats.name }.each_pair do |name,stats_array|
-              stats = Stats.aggregate(stats_array)
-              bucket.save(stats, previous_ts)
+            data_points = self.first.find_all_in_ts_range(previous_ts, current_ts)
+            data_points.group_by { |data| data.name }.each_pair do |name,dps|
+              data = DataPoint.aggregate(dps)
+              bucket.save(data, previous_ts)
             end
           end
         end
@@ -88,27 +88,27 @@ module SimpleMetrics
 
     def find(id)
       mongo_result = mongo_coll.find_one({ :_id => id })
-      Stats.create_from_db(mongo_result)
+      DataPoint.create_from_db(mongo_result)
     end
 
     def find_all_by_name(name)
       mongo_result = mongo_coll.find({ :name => name })
-      mongo_result.inject([]) { |result, a| result << Stats.create_from_db(a) }
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts(ts)
       mongo_result = mongo_coll.find({ :ts => ts_bucket(ts) })
-      mongo_result.inject([]) { |result, a| result << Stats.create_from_db(a) }
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_by_name(ts, name)
       mongo_result = mongo_coll.find({ :ts => ts_bucket(ts), :name => name })
-      mongo_result.inject([]) { |result, a| result << Stats.create_from_db(a) }
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_range(previous_ts, current_ts)
       mongo_result = mongo_coll.find({ :ts => { "$gte" => previous_ts, "$lt" => current_ts }}).to_a
-      mongo_result.inject([]) { |result, a| result << Stats.create_from_db(a) }
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def stats_exist_in_previous_ts?(ts)

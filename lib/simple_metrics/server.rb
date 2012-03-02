@@ -5,18 +5,18 @@ module SimpleMetrics
 
   module ClientHandler
 
-    @@stats = []
+    @@data_points = []
 
     class << self
-      def get_and_clear_stats
-        stats = @@stats.dup
-        @@stats = []
-        stats
+      def get_and_clear_data_points
+        data_points = @@data_points.dup
+        @@data_points = []
+        data_points
       end
     end
 
-    def stats
-      @@stats
+    def data_points
+      @@data_points
     end
 
     def post_init
@@ -26,9 +26,9 @@ module SimpleMetrics
     def receive_data(data)
       SimpleMetrics.logger.debug "received_data: #{data.inspect}"
 
-      @@stats ||= []
-      @@stats << Stats.parse(data)
-    rescue Stats::ParserError => e
+      @@data_points ||= []
+      @@data_points << DataPoint.parse(data)
+    rescue DataPoint::ParserError => e
       SimpleMetrics.logger.debug "Invalid Data skipped: #{data}"
     end
   end
@@ -47,7 +47,7 @@ module SimpleMetrics
           EventMachine::add_periodic_timer(SimpleMetrics.config[:flush_interval]) do
             SimpleMetrics.logger.debug "SERVER: period timer triggered after #{SimpleMetrics.config[:flush_interval]} seconds"
 
-            EM.defer { Bucket.flush_stats(ClientHandler.get_and_clear_stats) } 
+            EM.defer { Bucket.flush_data_points(ClientHandler.get_and_clear_data_points) } 
           end
         end
       end

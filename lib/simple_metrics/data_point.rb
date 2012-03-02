@@ -1,7 +1,7 @@
 # encoding: utf-8
 module SimpleMetrics
 
-  class Stats
+  class DataPoint
 
     class NonMatchingTypesError < Exception; end
     class ParserError           < Exception; end
@@ -33,15 +33,15 @@ module SimpleMetrics
       end
 
       def create_counter(attributes)
-        Stats.new(attributes.merge(:type => 'c'))
+        self.new(attributes.merge(:type => 'c'))
       end
 
       def create_gauge(attributes)
-        Stats.new(attributes.merge(:type => 'g'))
+        self.new(attributes.merge(:type => 'g'))
       end
 
       def create_timing(attributes)
-        Stats.new(attributes.merge(:type => 'ms'))
+        self.new(attributes.merge(:type => 'ms'))
       end
 
       def aggregate(stats_array)
@@ -53,7 +53,7 @@ module SimpleMetrics
       end
 
       def create_from_db(attributes)
-        Stats.new(:name => attributes["name"], :value => attributes["value"], :ts => attributes["ts"], :type => attributes["type"])
+        self.new(:name => attributes["name"], :value => attributes["value"], :ts => attributes["ts"], :type => attributes["type"])
       end
     end
 
