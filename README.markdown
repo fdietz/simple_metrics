@@ -95,10 +95,10 @@ The 10s and 1m collections are capped collections and have a fixed size. The oth
 
 How can we map these times to graphs?
 
-* 10 sec -> Realtime Graph  (ttl: 1 hour)
-* 1 min  -> last hour       (ttl: 1 day)
-* 10 min -> whole day view  (ttl: forever)
-* 1 day  -> week view       (ttl: forever)
+* 10 sec, near real-time graph  (ttl: several hours)
+* 1 min, last hour       (ttl: several days)
+* 10 min, whole day view  (ttl: forever)
+* 1 day , week view       (ttl: forever)
 
 License 
 -------
