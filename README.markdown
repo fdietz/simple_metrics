@@ -1,4 +1,5 @@
-h1. SimpleMetrics
+SimpleMetrics
+=============
 
 SimpleMetrics makes it easy to collect and aggregating data (specifically counters, timers and events).
 
@@ -10,9 +11,10 @@ SimpleMetrics is written in Ruby and packaged as a gem.
 
 The current version is considered ALPHA.
 
-h2. SimpleMetrics Client
+SimpleMetrics Client
+--------------------
 
-h3. Commandline client:
+Commandline client:
 
 Send a count of 5 for data point "module.test1":
 
@@ -30,7 +32,8 @@ more info:
 	
 		simple_metrics_client --help
 
-h3. Ruby client:
+Ruby client API
+---------------
 
 Initialize client:
 
@@ -62,7 +65,8 @@ Initialize client:
 
 More examples in the examples/ directory.
 
-h2. SimpleMetrics Server
+SimpleMetrics Server
+--------------------
 
 We provide a simple commandline wrapper using daemons gem (http://daemons.rubyforge.org/).
 
@@ -78,7 +82,8 @@ Show Help:
 
 		simple_metrics_server --help
 
-h3. Round Robin Database Principles in MongoDB
+Round Robin Database Principles in MongoDB
+------------------------------------------
 
 We use 4 collections in MongoDB each with more coarse timestamp buckets:
 * 10 sec
@@ -88,14 +93,15 @@ We use 4 collections in MongoDB each with more coarse timestamp buckets:
 
 The 10s and 1m collections are capped collections and have a fixed size. The other will store the data as long as we have sufficient disc space.
 
-h4. How can we map these times to graphs?
+How can we map these times to graphs?
 
 * 10 sec -> Realtime Graph  (ttl: 1 hour)
 * 1 min  -> last hour       (ttl: 1 day)
 * 10 min -> whole day view  (ttl: forever)
 * 1 day  -> week view       (ttl: forever)
 
-h2. License 
+License 
+-------
 
 (The MIT License)
 
