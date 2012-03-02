@@ -39,27 +39,27 @@ Initialize client:
 
 		client = SimpleMetrics::Client.new("localhost")
 
-# sends "com.example.test1:1|c" via UDP:
+sends "com.example.test1:1|c" via UDP:
 
 		client.increment("com.example.test1")
 
-# sends "com.example.test1:-1|c":
+sends "com.example.test1:-1|c":
 
 		client.decrement("com.example.test1")
 
-# sends "com.example.test1:5|c" (a counter with a relative value of 5):
+sends "com.example.test1:5|c" (a counter with a relative value of 5):
 
 		client.count("com.example.test1", 5)
 
-# sends "com.example.test1:5|c|@0.1" with a sample rate of 10%:
+sends "com.example.test1:5|c|@0.1" with a sample rate of 10%:
 
 		client.count("com.example.test1", 5, 0.1)
 
-# sends "com.example.test1:5|g" (meaning gauge, an absolute value of 5):
+sends "com.example.test1:5|g" (meaning gauge, an absolute value of 5):
 
 		client.count("com.example.test1", 5)
 
-# sends "com.example.test1:100|ms":
+sends "com.example.test1:100|ms":
 
 		client.timing("com.example.test1")
 
