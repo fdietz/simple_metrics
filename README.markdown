@@ -1,7 +1,7 @@
 SimpleMetrics
 =============
 
-SimpleMetrics makes it easy to collect and aggregating data (specifically counters, timers and events).
+SimpleMetrics makes it easy to collect and aggregate data (specifically counters, timers and events).
 
 It is heavily inspired by Statsd (https://github.com/etsy/statsd) from Etsy. Read the "Measure Anything, measure Everything" blog post (http://codeascraft.etsy.com/2011/02/15/measure-anything-measure-everything/) which did it for me.
 
