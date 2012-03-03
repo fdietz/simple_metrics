@@ -6,6 +6,8 @@ require "simple_metrics/client"
 require "simple_metrics/server"
 require "simple_metrics/data_point"
 require "simple_metrics/bucket"
+require "simple_metrics/graph"
+require "simple_metrics/functions"
 require "simple_metrics/mongo"
 
 module SimpleMetrics
