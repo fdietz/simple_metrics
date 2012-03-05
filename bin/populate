@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "bundler/setup"
+
+require 'optparse'
+require "simple_metrics"
+
+ts = Time.now.to_i
+
+name = "test.post.clicks"
+
+SimpleMetrics::Bucket.all.each do |bucket|
+	ts_bucket = bucket.ts_bucket(ts)
+
+	previous_value = rand(300)
+	(1..100).each do |index|
+		ts = ts_bucket - (bucket.seconds*index)
+		value = previous_value+rand(20)
+		data_point = SimpleMetrics::DataPoint.create_counter(:name => name, :value => value)
+		bucket.save(data_point, ts)
+	end
+end
