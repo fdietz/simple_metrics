@@ -8,7 +8,9 @@ require "simple_metrics"
 
 ts = Time.now.to_i
 
-name = "test.post.clicks"
+name = "test.post.clicks2"
+
+SimpleMetrics::Mongo.ensure_collections_exist
 
 SimpleMetrics::Bucket.all.each do |bucket|
 	ts_bucket = bucket.ts_bucket(ts)
