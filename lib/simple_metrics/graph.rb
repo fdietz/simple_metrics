@@ -33,22 +33,20 @@ module SimpleMetrics
       result
     end
 
-    private
-
     def query(bucket, from, to, target)
-      if target.is_a?(RegExp) 
+      if target.is_a?(Regexp) 
         bucket.find_all_by_regexp(from, to, target)
       elsif target.is_a?(String) && target.include?('*')
         bucket.find_all_by_wildcard(from, to, target)
       elsif target.is_a?(String)
-        bucket.find_all_by_name(from, to, target)
+        bucket.find_all_in_ts_range_by_name(from, to, target)
       else
         raise ArgumentError, "Unknown target: #{target.inspect}"
       end
     end
 
     def values_only(data_point_array)
-      data_point_array.map { |data| data.value }
+      data_point_array.map { |data| { :ts => data.ts, :value => data.value } }
     end
   end
 end

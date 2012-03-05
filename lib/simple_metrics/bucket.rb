@@ -116,13 +116,32 @@ module SimpleMetrics
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
-    def find_all_in_ts_range(previous_ts, current_ts)
-      mongo_result = mongo_coll.find({ :ts => { "$gte" => previous_ts, "$lt" => current_ts }}).to_a
+    def find_all_in_ts_range(from, to)
+      mongo_result = mongo_coll.find({ :ts => { "$gte" => from, "$lt" => to }}).to_a
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+    end
+
+    def find_all_in_ts_range_by_name(from, to, name)
+      mongo_result = mongo_coll.find({ :name => name, :ts => { "$gte" => from, "$lt" => to }}).to_a
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+    end
+
+    def find_all_in_ts_range_by_wildcard(from, to, target)
+      mongo_result = mongo_coll.find({ :name => /#{target.gsub('*', '.*')}/, :ts => { "$gte" => from, "$lt" => to } })
+      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+    end
+
+    def find_all_in_ts_range_by_regexp(from, to, target)
+      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lt" => to } })
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def stats_exist_in_previous_ts?(ts)
       mongo_coll.find({ :ts => ts }).count > 0
+    end
+
+    def find_all_distinct_names
+      mongo_coll.distinct(:name).to_a
     end
 
     def save(stats, ts)
