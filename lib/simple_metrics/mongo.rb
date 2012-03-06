@@ -38,7 +38,7 @@ module SimpleMetrics
     end
 
     def connection
-      @@connection ||= ::Mongo::Connection.new(SimpleMetrics.db_config[:host], SimpleMetrics.db_config[:port], :slave_ok => true)
+      @@connection ||= ::Mongo::Connection.new(SimpleMetrics.db_config[:host], SimpleMetrics.db_config[:port])
     end
 
     def db
