@@ -22,6 +22,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency "eventmachine"
   s.add_dependency "daemons"
-  s.add_dependency "mongo"
-  s.add_dependency "bson_ext"
+  s.add_dependency "mongo", '~> 1.6'
+  s.add_dependency "bson", '~> 1.6'
 end

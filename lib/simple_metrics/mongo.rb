@@ -12,6 +12,8 @@ module SimpleMetrics
           db.create_collection(bucket.name, :capped => bucket.capped, :size => bucket.size) 
           SimpleMetrics.logger.debug "SERVER: MongoDB - created collection #{bucket.name}, capped: #{bucket.capped}, size: #{bucket.size}"
         end
+        
+        puts db.collection.inspect
         db.collection(bucket.name).ensure_index([['ts', ::Mongo::ASCENDING]])
         SimpleMetrics.logger.debug "SERVER: MongoDB - ensure index on column ts for collection #{bucket.name}"
       end 
