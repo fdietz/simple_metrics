@@ -48,8 +48,20 @@ module SimpleMetrics
         raise NonMatchingTypesError unless stats_array.group_by { |stats| stats.type }.size == 1
 
         result_stat = stats_array.first.dup
-        result_stat.value = stats_array.map { |stats| stats.value }.inject(0) { |result, value| result += value }
-        result_stat
+        if stats_array.first.counter?
+          result_stat.value = stats_array.map { |stats| stats.value }.inject(0) { |result, value| result += value }
+          result_stat
+        elsif stats_array.first.gauge?
+          total_value = stats_array.map { |stats| stats.value }.inject(0) { |result, value| result += value }
+          result_stat.value = total_value / stats_array.size
+          result_stat
+        elsif stats_array.first.timing?
+          # TODO implement timing aggregation
+        elsif stats_array.first.event? 
+          # TODO implement event aggregation
+        else
+          raise ArgumentError, "Unknown data point type"
+        end
       end
 
       def create_from_db(attributes)

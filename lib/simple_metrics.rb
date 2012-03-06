@@ -32,7 +32,7 @@ module SimpleMetrics
   end
 
   def config=(options)
-    @@config = CONFIG_DEFAULTS.merge(options.symbolize_keys!)
+    @@config = CONFIG_DEFAULTS.merge(options)
   end
 
   BUCKETS_DEFAULTS = [
@@ -87,7 +87,7 @@ module SimpleMetrics
       :host    => options.delete(:host) || 'localhost',
       :port    => options.delete(:port) || 27017,
       :db_name => "simple_metrics_#{options.delete(:prefix)}",
-      :options => MONGODB_DEFAULTS.merge(options.symbolize_keys!)
+      :options => MONGODB_DEFAULTS.merge(options)
     }
   end
 

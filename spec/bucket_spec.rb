@@ -130,7 +130,7 @@ module SimpleMetrics
         Mongo.ensure_collections_exist
       end
 
-      it "aggregates all stats" do
+      it "aggregates all counter data points" do
         stats1a  =  DataPoint.create_counter(:name => "key1", :value => 5)
         stats1b  =  DataPoint.create_counter(:name => "key1", :value => 7)
         stats2   =  DataPoint.create_counter(:name => "key2", :value => 3)
@@ -154,6 +154,32 @@ module SimpleMetrics
         key2_result.value.should == 3
         key2_result.should be_counter
       end
+
+      it "aggregates all gauge data points" do
+        stats1a  =  DataPoint.create_gauge(:name => "key1", :value => 5)
+        stats1b  =  DataPoint.create_gauge(:name => "key1", :value => 7)
+        stats2   =  DataPoint.create_gauge(:name => "key2", :value => 3)
+
+        bucket2 = Bucket[1]
+        ts_at_insert = bucket2.previous_ts_bucket(ts)
+        bucket.save(stats1a, ts_at_insert)
+        bucket.save(stats1b, ts_at_insert)
+        bucket.save(stats2, ts_at_insert)
+
+        Bucket.aggregate_all(ts)
+
+        results = bucket2.find_all_in_ts(ts_at_insert)
+        results.should have(2).items
+
+        key1_result = results.find {|stat| stat.name == "key1"}
+        key1_result.value.should == 6
+        key1_result.should be_gauge
+
+        key2_result = results.find {|stat| stat.name == "key2"}
+        key2_result.value.should == 3
+        key2_result.should be_gauge
+      end
+
     end # describe "#aggregate_all"
 
     describe "#flush_data_points" do

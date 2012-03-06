@@ -54,7 +54,30 @@ module SimpleMetrics
     end
 
 
-    describe "create_counter" do
+    describe "aggregate" do
+      it "aggregates counter data points" do
+        stats1  =  DataPoint.create_counter(:name => "key1", :value => 5)
+        stats2  =  DataPoint.create_counter(:name => "key1", :value => 7)
+        result = DataPoint.aggregate([stats1, stats2])
+        result.value.should == 12
+        result.name.should == "key1"
+        result.should be_counter
+      end
+
+      it "aggregates gauge data points" do
+        stats1  =  DataPoint.create_gauge(:name => "key1", :value => 5)
+        stats2  =  DataPoint.create_gauge(:name => "key1", :value => 7)
+        result = DataPoint.aggregate([stats1, stats2])
+        result.value.should == 6
+        result.name.should == "key1"
+        result.should be_gauge
+      end
+
+      it "aggregates timing data points" do
+      end
+      
+      it "aggregates event data points" do
+      end
     end
   end
 
