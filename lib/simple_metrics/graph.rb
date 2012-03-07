@@ -36,10 +36,10 @@ module SimpleMetrics
     def query(bucket, from, to, target)
       if target.is_a?(Regexp) 
         result = bucket.find_all_in_ts_range_by_regexp(from, to, target)
-        [DataPoint.aggregate(result, target.inspect)]
+        DataPoint.aggregate_array(result, target.inspect)
       elsif target.is_a?(String) && target.include?('*')
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
-        [DataPoint.aggregate(result, target)]
+        DataPoint.aggregate_array(result, target)
       elsif target.is_a?(String)
         bucket.find_all_in_ts_range_by_name(from, to, target)
       else

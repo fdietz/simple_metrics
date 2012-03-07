@@ -65,8 +65,54 @@ module SimpleMetrics
         end
       end
 
+      def aggregate_array(stats_array, name = nil)
+        raise NonMatchingTypesError unless stats_array.group_by { |stats| stats.type }.size == 1
+
+        if stats_array.first.counter?
+          tmp_hash = ts_hash(stats_array) do |value1, value2|
+            value1 + value2
+          end
+
+          result = []
+          tmp_hash.each_pair do |key, value|
+            result << self.new(:name => name, :ts => key, :value => value, :type => 'c')
+          end
+          result
+        elsif stats_array.first.gauge?
+          tmp_hash = ts_hash(stats_array) do |value1, value2|
+            (value1 + value2)/2
+          end
+
+          result = []
+          tmp_hash.each_pair do |key, value|
+            result << self.new(:name => name, :ts => key, :value => value, :type => 'g')
+          end
+          result
+        elsif stats_array.first.timing?
+          # TODO implement timing aggregation
+        elsif stats_array.first.event? 
+          # TODO implement event aggregation
+        else
+          raise ArgumentError, "Unknown data point type"
+        end
+      end
+
       def create_from_db(attributes)
         self.new(:name => attributes["name"], :value => attributes["value"], :ts => attributes["ts"], :type => attributes["type"])
+      end
+
+      private
+
+      def ts_hash(data_points, &block)
+        tmp = {}
+        data_points.each do |dp|
+          if tmp.key?(dp.ts)
+            tmp[dp.ts] = block.call(tmp[dp.ts], dp.value)
+          else
+            tmp[dp.ts] = dp.value
+          end
+        end
+        tmp
       end
     end
 
