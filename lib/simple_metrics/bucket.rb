@@ -151,6 +151,8 @@ module SimpleMetrics
     end
 
     def fill_gaps(from, to, query_result)
+      return query_result if query_result.blank?
+      
       tmp_hash = DataPoint.ts_hash(query_result)
       dp_template = query_result.first
 

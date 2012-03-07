@@ -44,7 +44,7 @@ module SimpleMetrics
         bucket.fill_gaps(from, to, result)
       elsif target.is_a?(String)
         result = bucket.find_all_in_ts_range_by_name(from, to, target)
-        bucket.fill_gaps(from, to, result)
+        bucket.fill_gaps(from, to, result) 
       else
         raise ArgumentError, "Unknown target: #{target.inspect}"
       end
