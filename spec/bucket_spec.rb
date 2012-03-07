@@ -126,21 +126,47 @@ module SimpleMetrics
         it "returns all stats for given name and timestamp" do
           stats1  =  DataPoint.create_counter(:name => "com.test.key1", :value => 5)
           stats2  =  DataPoint.create_counter(:name => "com.test.key2", :value => 7)
-          stats_different_ts   =  DataPoint.create_counter(:name => "com.test2.key1", :value => 3)
+          stats_different =  DataPoint.create_counter(:name => "com.test2.key1", :value => 3)
 
-          from = ts - 60
-          to   = ts + 60
+          from = bucket.ts_bucket(ts)
+          to   = from
           bucket.save(stats1, ts)
           bucket.save(stats2, ts)
-          bucket.save(stats_different_ts, bucket.next_ts_bucket(ts))
+          bucket.save(stats_different, ts)
 
           results = bucket.find_all_in_ts_range_by_wildcard(from, to, "com.test.*")
+
           results.should have(2).items
           results.first.name.should == "com.test.key1"
           results.last.name.should == "com.test.key2"
         end
       end
 
+      describe "#fill_gaps" do
+        it "returns stats and fills missing gaps with null entries" do
+          stats  =  DataPoint.create_counter(:name => "com.test.key1", :value => 5)
+
+          from = ts - 10
+          to   = ts + 10
+          bucket.save(stats, ts)
+          ts_bucket = bucket.ts_bucket(ts)
+
+          results = bucket.fill_gaps(from, to, [stats])
+
+          results.should have(3).items
+          results[0].name.should == "com.test.key1"
+          results[1].name.should == "com.test.key1"
+          results[2].name.should == "com.test.key1"
+
+          results[0].value.should be_nil
+          results[1].value.should == 5
+          results[2].value.should be_nil
+
+          results[0].ts.should == ts_bucket - 10
+          results[1].ts.should == ts_bucket
+          results[2].ts.should == ts_bucket + 10
+        end
+      end
     end # describe "finder methods"
 
     describe "#aggregate_all" do

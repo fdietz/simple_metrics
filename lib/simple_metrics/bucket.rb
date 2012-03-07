@@ -92,39 +92,39 @@ module SimpleMetrics
     end
 
     def find_all_by_name(name)
-      mongo_result = mongo_coll.find({ :name => name })
+      mongo_result = mongo_coll.find({ :name => name }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts(ts)
-      mongo_result = mongo_coll.find({ :ts => ts_bucket(ts) })
+      mongo_result = mongo_coll.find({ :ts => ts_bucket(ts) }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_by_name(ts, name)
-      mongo_result = mongo_coll.find({ :ts => ts_bucket(ts), :name => name })
+      mongo_result = mongo_coll.find({ :ts => ts_bucket(ts), :name => name }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_range(from, to)
-      mongo_result = mongo_coll.find({ :ts => { "$gte" => from, "$lt" => to }}).to_a
+      mongo_result = mongo_coll.find({ :ts => { "$gte" => from, "$lte" => to }}).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_range_by_name(from, to, name)
-      mongo_result = mongo_coll.find({ :name => name, :ts => { "$gte" => from, "$lt" => to }}).to_a
+      mongo_result = mongo_coll.find({ :name => name, :ts => { "$gte" => from, "$lte" => to }}).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_range_by_wildcard(from, to, target)
       target = target.gsub('.', '\.')
       target = target.gsub('*', '.*')
-      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lt" => to } })
+      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lte" => to } }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
     def find_all_in_ts_range_by_regexp(from, to, target)
-      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lt" => to } })
+      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lte" => to } }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
@@ -148,6 +148,35 @@ module SimpleMetrics
 
     def capped?
       @capped == true
+    end
+
+    def fill_gaps(from, to, query_result)
+      tmp_hash = DataPoint.ts_hash(query_result)
+      dp_template = query_result.first
+
+      result = []
+      each_ts(from, to) do |current_bucket_ts|
+        result <<  
+          if tmp_hash.key?(current_bucket_ts)
+            tmp_hash[current_bucket_ts]
+          else
+            dp       = dp_template.dup
+            dp.value = nil
+            dp.ts    = current_bucket_ts
+            dp
+          end
+      end
+      result
+    end
+
+    private
+
+    def each_ts(from, to)
+      current_bucket_ts = ts_bucket(from)
+      while (current_bucket_ts <= ts_bucket(to))
+        yield(current_bucket_ts)
+        current_bucket_ts = current_bucket_ts + seconds
+      end
     end
 
   end

@@ -69,7 +69,7 @@ module SimpleMetrics
         raise NonMatchingTypesError unless stats_array.group_by { |stats| stats.type }.size == 1
 
         if stats_array.first.counter?
-          tmp_hash = ts_hash(stats_array) do |value1, value2|
+          tmp_hash = ts_hash_aggregated(stats_array) do |value1, value2|
             value1 + value2
           end
 
@@ -79,7 +79,7 @@ module SimpleMetrics
           end
           result
         elsif stats_array.first.gauge?
-          tmp_hash = ts_hash(stats_array) do |value1, value2|
+          tmp_hash = ts_hash_aggregated(stats_array) do |value1, value2|
             (value1 + value2)/2
           end
 
@@ -101,9 +101,13 @@ module SimpleMetrics
         self.new(:name => attributes["name"], :value => attributes["value"], :ts => attributes["ts"], :type => attributes["type"])
       end
 
+      def ts_hash(query_result)
+        query_result.inject({}) { |result, dp| result[dp.ts] = dp; result }
+      end
+      
       private
 
-      def ts_hash(data_points, &block)
+      def ts_hash_aggregated(data_points, &block)
         tmp = {}
         data_points.each do |dp|
           if tmp.key?(dp.ts)
@@ -142,7 +146,7 @@ module SimpleMetrics
     end
 
     def value
-      @value.to_i
+      @value.to_i if @value
     end
 
     def attributes

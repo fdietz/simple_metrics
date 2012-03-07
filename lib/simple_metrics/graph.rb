@@ -36,12 +36,15 @@ module SimpleMetrics
     def query(bucket, from, to, target)
       if target.is_a?(Regexp) 
         result = bucket.find_all_in_ts_range_by_regexp(from, to, target)
-        DataPoint.aggregate_array(result, target.inspect)
+        result = DataPoint.aggregate_array(result, target.inspect)
+        bucket.fill_gaps(from, to, result)
       elsif target.is_a?(String) && target.include?('*')
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
-        DataPoint.aggregate_array(result, target)
+        result = DataPoint.aggregate_array(result, target)
+        bucket.fill_gaps(from, to, result)
       elsif target.is_a?(String)
-        bucket.find_all_in_ts_range_by_name(from, to, target)
+        result = bucket.find_all_in_ts_range_by_name(from, to, target)
+        bucket.fill_gaps(from, to, result)
       else
         raise ArgumentError, "Unknown target: #{target.inspect}"
       end
@@ -50,5 +53,6 @@ module SimpleMetrics
     def values_only(data_point_array)
       data_point_array.map { |data| { :ts => data.ts, :value => data.value } }
     end
+
   end
 end

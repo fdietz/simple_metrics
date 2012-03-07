@@ -22,15 +22,30 @@ module SimpleMetrics
 
       it "returns string request data points as is" do
       	dp1 = DataPoint.create_counter(:name => "key1", :value => 5)
-      	dp2 = DataPoint.create_counter(:name => "key1", :value => 7)
 
       	bucket.save(dp1, ts)
-      	bucket.save(dp2, ts)
 
-      	from = ts - 60
-      	to   = ts + 60
+        current_ts = bucket.ts_bucket(ts)
+      	from = current_ts
+      	to   = current_ts
       	results = Graph.query(bucket, from, to, "key1")
-      	results.should have(2).data_point
+
+      	results.should have(1).data_point
+      end
+
+      it "returns string request data points and fill graps" do
+        dp1 = DataPoint.create_counter(:name => "key1", :value => 5)
+
+        bucket.save(dp1, ts)
+
+        current_ts = bucket.ts_bucket(ts)
+        from = current_ts
+        to   = current_ts+10
+        results = Graph.query(bucket, from, to, "key1")
+
+        results.should have(2).data_point
+        results.first.value.should == 5
+        results.last.value.should be_nil
       end
 
       it "returns wildcard request data points with aggregate counter" do
@@ -40,8 +55,9 @@ module SimpleMetrics
       	bucket.save(dp1, ts)
       	bucket.save(dp2, ts)
 
-      	from = ts - 60
-      	to   = ts + 60
+      	current_ts = bucket.ts_bucket(ts)
+        from = current_ts
+        to   = current_ts
       	results = Graph.query(bucket, from, to, "com.test.*")
       	results.should have(1).data_point
       	result = results.first
@@ -57,8 +73,10 @@ module SimpleMetrics
       	bucket.save(dp1, ts)
       	bucket.save(dp2, ts)
 
-      	from = ts - 60
-      	to   = ts + 60
+        current_ts = bucket.ts_bucket(ts)
+        from = current_ts
+        to   = current_ts
+
       	results = Graph.query(bucket, from, to, /com\.test(.*)/)
       	results.should have(1).data_point
       	result = results.first
