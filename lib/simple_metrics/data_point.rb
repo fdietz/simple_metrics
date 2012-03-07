@@ -44,10 +44,11 @@ module SimpleMetrics
         self.new(attributes.merge(:type => 'ms'))
       end
 
-      def aggregate(stats_array)
+      def aggregate(stats_array, name = nil)
         raise NonMatchingTypesError unless stats_array.group_by { |stats| stats.type }.size == 1
 
-        result_stat = stats_array.first.dup
+        result_stat      = stats_array.first.dup
+        result_stat.name = name if name
         if stats_array.first.counter?
           result_stat.value = stats_array.map { |stats| stats.value }.inject(0) { |result, value| result += value }
           result_stat

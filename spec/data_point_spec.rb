@@ -64,6 +64,15 @@ module SimpleMetrics
         result.should be_counter
       end
 
+      it "aggregates counter data points with custom name" do
+        stats1  =  DataPoint.create_counter(:name => "key1", :value => 5)
+        stats2  =  DataPoint.create_counter(:name => "key1", :value => 7)
+        result = DataPoint.aggregate([stats1, stats2], "new_name")
+        result.value.should == 12
+        result.name.should == "new_name"
+        result.should be_counter
+      end
+
       it "aggregates gauge data points" do
         stats1  =  DataPoint.create_gauge(:name => "key1", :value => 5)
         stats2  =  DataPoint.create_gauge(:name => "key1", :value => 7)

@@ -96,16 +96,6 @@ module SimpleMetrics
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
-    def find_all_by_wildcard(from, to, target)
-      mongo_result = mongo_coll.find({ :name => /#{target.gsub('*', '.*')}/ })
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
-    end
-
-    def find_all_by_regexp(from, to, target)
-      mongo_result = mongo_coll.find({ :name => /#{target}/ })
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
-    end
-
     def find_all_in_ts(ts)
       mongo_result = mongo_coll.find({ :ts => ts_bucket(ts) })
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
@@ -127,7 +117,9 @@ module SimpleMetrics
     end
 
     def find_all_in_ts_range_by_wildcard(from, to, target)
-      mongo_result = mongo_coll.find({ :name => /#{target.gsub('*', '.*')}/, :ts => { "$gte" => from, "$lt" => to } })
+      target = target.gsub('.', '\.')
+      target = target.gsub('*', '.*')
+      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lt" => to } })
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 

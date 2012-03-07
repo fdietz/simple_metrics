@@ -122,6 +122,25 @@ module SimpleMetrics
         end
       end
 
+      describe "#find_all_in_ts_by_wildcard" do
+        it "returns all stats for given name and timestamp" do
+          stats1  =  DataPoint.create_counter(:name => "com.test.key1", :value => 5)
+          stats2  =  DataPoint.create_counter(:name => "com.test.key2", :value => 7)
+          stats_different_ts   =  DataPoint.create_counter(:name => "com.test2.key1", :value => 3)
+
+          from = ts - 60
+          to   = ts + 60
+          bucket.save(stats1, ts)
+          bucket.save(stats2, ts)
+          bucket.save(stats_different_ts, bucket.next_ts_bucket(ts))
+
+          results = bucket.find_all_in_ts_range_by_wildcard(from, to, "com.test.*")
+          results.should have(2).items
+          results.first.name.should == "com.test.key1"
+          results.last.name.should == "com.test.key2"
+        end
+      end
+
     end # describe "finder methods"
 
     describe "#aggregate_all" do
