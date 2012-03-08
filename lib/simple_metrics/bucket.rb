@@ -27,8 +27,11 @@ module SimpleMetrics
 
         ts = Time.now.utc.to_i
         bucket = Bucket.first
-        data_points.each { |data| bucket.save(data, ts) }
-        
+        data_points.group_by { |data| data.name }.each_pair do |name,dps|
+          data = DataPoint.aggregate(dps)
+          bucket.save(data, ts)
+        end
+
         self.aggregate_all(ts)
       end
 
@@ -151,7 +154,7 @@ module SimpleMetrics
     end
 
     def fill_gaps(from, to, query_result)
-      return query_result if query_result.blank?
+      return query_result if query_result.nil? || query_result.size == 0
       
       tmp_hash = DataPoint.ts_hash(query_result)
       dp_template = query_result.first

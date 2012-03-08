@@ -229,6 +229,9 @@ module SimpleMetrics
 
     describe "#flush_data_points" do
       before do
+        Mongo.truncate_collections
+        Mongo.ensure_collections_exist
+        
         stats1 = DataPoint.create_counter(:name => "key1", :value => 5)
         stats2 = DataPoint.create_counter(:name => "key1", :value => 7)
         stats3 = DataPoint.create_counter(:name => "key2", :value => 3)
@@ -239,13 +242,31 @@ module SimpleMetrics
         Bucket.flush_data_points(@stats)
 
         results = bucket.find_all_in_ts(ts)
-        results.should have(3).items
+        results.should have(2).items
       end
 
       it "calls aggregate_all afterwards" do
         mock(Bucket).aggregate_all(ts)
         Bucket.flush_data_points(@stats)
       end
+
+      it "saves all stats and aggregate if duplicates found" do
+        Bucket.flush_data_points(@stats)
+
+        results = bucket.find_all_in_ts(ts)
+        results.should have(2).items
+        results.first.name.should == "key1"
+        results.last.name.should == "key2"
+        results.first.value == 12
+        results.last.value == 3
+      end
+
+      it "raises error if name matches but type does not" do
+        stats4 = DataPoint.create_gauge(:name => "key1", :value => 3)
+        input = @stats + [stats4]
+        expect { Bucket.flush_data_points(input) }.to raise_error(SimpleMetrics::DataPoint::NonMatchingTypesError)
+      end
+
     end # describe "#flush_data_points"
 
   end
