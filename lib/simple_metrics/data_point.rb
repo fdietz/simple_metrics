@@ -97,10 +97,6 @@ module SimpleMetrics
         end
       end
 
-      def create_from_db(attributes)
-        self.new(:name => attributes["name"], :value => attributes["value"], :ts => attributes["ts"], :type => attributes["type"])
-      end
-
       def ts_hash(query_result)
         query_result.inject({}) { |result, dp| result[dp.ts] = dp; result }
       end

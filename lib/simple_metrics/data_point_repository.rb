@@ -70,11 +70,7 @@ module SimpleMetrics
     end
 
     def save(result)
-      @collection.insert(result)
-    end
-
-    def find(id)
-      data_point(@collection.find_one(id))
+      @collection.insert(result.attributes)
     end
 
     def find_all_at_ts(ts)

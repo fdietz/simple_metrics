@@ -129,7 +129,7 @@ module SimpleMetrics
 
     def save(data_point, ts)
       data_point.ts = ts_bucket(ts)
-      repository.save(data_point.attributes)
+      repository.save(data_point)
       SimpleMetrics.logger.debug "SERVER: MongoDB - insert in #{name}: #{data_point.inspect}"
     end
 
