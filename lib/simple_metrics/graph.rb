@@ -1,11 +1,5 @@
 module SimpleMetrics
 
-  # 
-  # url format examples:
-  # * target=com.post.clicks (1 line in graph)
-  # * target=com.post.clicks.text&target=com.post.clicks.logo (2 lines in graph)
-  # * target=com.post.clicks.* (1 aggregated line in graph)
-  #
   module Graph
     extend self
 
@@ -34,11 +28,7 @@ module SimpleMetrics
     end
 
     def query(bucket, from, to, target)
-      if target.is_a?(Regexp) 
-        result = bucket.find_all_in_ts_range_by_regexp(from, to, target)
-        result = DataPoint.aggregate_array(result, target.inspect)
-        bucket.fill_gaps(from, to, result)
-      elsif target.is_a?(String) && target.include?('*')
+      if target.is_a?(String) && target.include?('*')
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
         result = DataPoint.aggregate_array(result, target)
         bucket.fill_gaps(from, to, result)

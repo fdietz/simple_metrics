@@ -66,24 +66,6 @@ module SimpleMetrics
       	result.should be_counter
       end
 
-      it "returns regexp request data points with aggregate gauge" do
-      	dp1 = DataPoint.create_gauge(:name => "com.test.key1", :value => 5)
-      	dp2 = DataPoint.create_gauge(:name => "com.test.key2", :value => 7)
-
-      	bucket.save(dp1, ts)
-      	bucket.save(dp2, ts)
-
-        current_ts = bucket.ts_bucket(ts)
-        from = current_ts
-        to   = current_ts
-
-      	results = Graph.query(bucket, from, to, /com\.test(.*)/)
-      	results.should have(1).data_point
-      	result = results.first
-      	result.name.should == "/com\\.test(.*)/"
-      	result.value.should == 6
-      	result.should be_gauge
-      end
     end
   end
 end

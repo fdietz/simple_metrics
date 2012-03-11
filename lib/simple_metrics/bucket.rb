@@ -17,10 +17,6 @@ module SimpleMetrics
         all[index]
       end
 
-      def coarse_buckets
-        Bucket.all.sort_by! { |r| r.seconds }[1..-1]
-      end
-
       def flush_data_points(data_points)
         return if data_points.empty?
         SimpleMetrics.logger.info "#{Time.now} Flushing #{data_points.count} counters to MongoDB"
@@ -54,6 +50,10 @@ module SimpleMetrics
       end
 
       private
+
+      def coarse_buckets
+        Bucket.all.sort_by! { |r| r.seconds }[1..-1]
+      end
 
       def humanized_timestamp(ts)
         Time.at(ts).utc
@@ -89,23 +89,9 @@ module SimpleMetrics
       ts_bucket(ts) - seconds
     end
 
-    def find(id)
-      mongo_result = mongo_coll.find_one({ :_id => id })
-      DataPoint.create_from_db(mongo_result)
-    end
-
-    def find_all_by_name(name)
-      mongo_result = mongo_coll.find({ :name => name }).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
-    end
-
-    def find_all_in_ts(ts)
+    # TODO: only used in tests. remove it!
+    def find_all_at_ts(ts)
       mongo_result = mongo_coll.find({ :ts => ts_bucket(ts) }).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
-    end
-
-    def find_all_in_ts_by_name(ts, name)
-      mongo_result = mongo_coll.find({ :ts => ts_bucket(ts), :name => name }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
 
@@ -120,13 +106,7 @@ module SimpleMetrics
     end
 
     def find_all_in_ts_range_by_wildcard(from, to, target)
-      target = target.gsub('.', '\.')
-      target = target.gsub('*', '.*')
-      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lte" => to } }).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
-    end
-
-    def find_all_in_ts_range_by_regexp(from, to, target)
+      target = target.gsub('.', '\.').gsub('*', '.*')
       mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lte" => to } }).to_a
       mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
     end
@@ -143,10 +123,6 @@ module SimpleMetrics
       stats.ts = ts_bucket(ts)
       result = mongo_coll.insert(stats.attributes)
       SimpleMetrics.logger.debug "SERVER: MongoDB - insert in #{name}: #{stats.inspect}, result: #{result}"
-    end
-
-    def mongo_coll
-      Mongo.collection(name)
     end
 
     def capped?
@@ -175,6 +151,10 @@ module SimpleMetrics
     end
 
     private
+
+    def mongo_coll
+      Mongo.collection(name)
+    end
 
     def each_ts(from, to)
       current_bucket_ts = ts_bucket(from)

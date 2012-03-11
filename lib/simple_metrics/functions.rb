@@ -2,14 +2,14 @@ module SimpleMetrics
 
 	module Functions
 
-		# calculate the maximum value for multiple targets
-		#
-		# params:
+  	# calculate the maximum value for multiple targets
+  	#
+  	# params:
     #  data_points   [1, 3, 5], [2, 1, 6]
     #
     # return:
     #  array         [2, 3, 6]
-		def max(*data_points)
+	 def max(*data_points)
     end
 
     # calculate the minimum value for multiple targets
@@ -17,7 +17,7 @@ module SimpleMetrics
     end
 
     # add offset to each value
-		def offset(*data_points)
+	 def offset(*data_points)
     end
 
     # multiple each value 

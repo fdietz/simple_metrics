@@ -47,7 +47,7 @@ module SimpleMetrics
       end
 
       it "saves given data in bucket" do
-        results = bucket.find_all_by_name("key1")
+        results = bucket.find_all_at_ts(ts)
         results.should have(1).item
         result = results.first
         result.name.should  == stats.name
@@ -56,7 +56,7 @@ module SimpleMetrics
       end
 
       it "saves data in correct timestamp" do
-        result = bucket.find_all_by_name("key1").first
+        result = bucket.find_all_at_ts(ts).first
         result.ts.should == ts/sec*sec
       end
 
@@ -69,23 +69,7 @@ module SimpleMetrics
         Mongo.ensure_collections_exist
       end
 
-      describe "#find_all_by_name" do
-        it "returns all stats for given name" do
-          stats_same1 =  DataPoint.create_counter(:name => "key1", :value => 5)
-          stats_same2 =  DataPoint.create_counter(:name => "key1", :value => 3)
-          stats_different = DataPoint.create_counter(:name => "key2", :value => 3)
-
-          bucket.save(stats_same1, ts)
-          bucket.save(stats_same2, ts)
-          bucket.save(stats_different, ts)
-
-          results = bucket.find_all_by_name("key1")
-          results.should have(2).items
-          results.first.name.should == stats_same1.name
-        end
-      end
-
-      describe "#find_all_in_ts" do
+      describe "#find_all_at_ts" do
         it "returns all stats in given timestamp" do
           stats1  =  DataPoint.create_counter(:name => "key1", :value => 5)
           stats2  =  DataPoint.create_counter(:name => "key2", :value => 3)
@@ -93,36 +77,17 @@ module SimpleMetrics
           bucket.save(stats1, ts)
           bucket.save(stats2, bucket.next_ts_bucket(ts))
 
-          result1 = bucket.find_all_in_ts(ts).first
+          result1 = bucket.find_all_at_ts(ts).first
           result1.name.should == stats1.name
           result1.value.should == stats1.value
 
-          result2 = bucket.find_all_in_ts(bucket.next_ts_bucket(ts)).first
+          result2 = bucket.find_all_at_ts(bucket.next_ts_bucket(ts)).first
           result2.name.should == stats2.name
           result2.value.should == stats2.value
         end
       end
 
-      describe "#find_all_in_ts_by_name" do
-        it "returns all stats for given name and timestamp" do
-          stats1a  =  DataPoint.create_counter(:name => "key1", :value => 5)
-          stats1b  =  DataPoint.create_counter(:name => "key1", :value => 7)
-          stats2   =  DataPoint.create_counter(:name => "key2", :value => 7)
-          stats1_different_ts   =  DataPoint.create_counter(:name => "key1", :value => 3)
-
-          bucket.save(stats1a, ts)
-          bucket.save(stats1b, ts)
-          bucket.save(stats2, ts)
-          bucket.save(stats1_different_ts, bucket.next_ts_bucket(ts))
-
-          results = bucket.find_all_in_ts_by_name(ts, "key1")
-          results.should have(2).items
-          results.first.name.should == "key1"
-          results.last.name.should == "key1"
-        end
-      end
-
-      describe "#find_all_in_ts_by_wildcard" do
+      describe "#find_all_in_ts_range_by_wildcard" do
         it "returns all stats for given name and timestamp" do
           stats1  =  DataPoint.create_counter(:name => "com.test.key1", :value => 5)
           stats2  =  DataPoint.create_counter(:name => "com.test.key2", :value => 7)
@@ -188,7 +153,7 @@ module SimpleMetrics
 
         Bucket.aggregate_all(ts)
 
-        results = bucket2.find_all_in_ts(ts_at_insert)
+        results = bucket2.find_all_at_ts(ts_at_insert)
         results.should have(2).items
 
         key1_result = results.find {|stat| stat.name == "key1"}
@@ -213,7 +178,7 @@ module SimpleMetrics
 
         Bucket.aggregate_all(ts)
 
-        results = bucket2.find_all_in_ts(ts_at_insert)
+        results = bucket2.find_all_at_ts(ts_at_insert)
         results.should have(2).items
 
         key1_result = results.find {|stat| stat.name == "key1"}
@@ -241,7 +206,7 @@ module SimpleMetrics
       it "saves all stats in finest/first bucket" do
         Bucket.flush_data_points(@stats)
 
-        results = bucket.find_all_in_ts(ts)
+        results = bucket.find_all_at_ts(ts)
         results.should have(2).items
       end
 
@@ -253,7 +218,7 @@ module SimpleMetrics
       it "saves all stats and aggregate if duplicates found" do
         Bucket.flush_data_points(@stats)
 
-        results = bucket.find_all_in_ts(ts)
+        results = bucket.find_all_at_ts(ts)
         results.should have(2).items
         results.first.name.should == "key1"
         results.last.name.should == "key2"
