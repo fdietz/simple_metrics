@@ -28,7 +28,7 @@ module SimpleMetrics
     end
 
     def query(bucket, from, to, target)
-      if target.is_a?(String) && target.include?('*')
+      if wild_card_query?(target)
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
         result = DataPoint.aggregate_array(result, target)
         bucket.fill_gaps(from, to, result)
@@ -36,13 +36,19 @@ module SimpleMetrics
         result = bucket.find_all_in_ts_range_by_name(from, to, target)
         bucket.fill_gaps(from, to, result) 
       else
-        raise ArgumentError, "Unknown target: #{target.inspect}"
+        raise ArgumentError, "Unknown target format: #{target.inspect}"
       end
+    end
+
+    private 
+
+    def wild_card_query?(target)
+      target.is_a?(String) && target.include?('*')
     end
 
     def values_only(data_point_array)
       data_point_array.map { |data| { :ts => data.ts, :value => data.value } }
     end
-
+  
   end
 end
