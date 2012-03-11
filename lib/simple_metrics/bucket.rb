@@ -17,15 +17,28 @@ module SimpleMetrics
         all[index]
       end
 
+      def flush_raw_data(data)      
+        data_points = []
+        data.each do |str|
+          begin
+            data_points << DataPoint.parse(str)
+          rescue DataPoint::ParserError => e
+            SimpleMetrics.logger.debug "Invalid Data skipped: #{str}, #{e}"
+          end
+        end
+        flush_data_points(data_points)
+      end
+
       def flush_data_points(data_points)
         return if data_points.empty?
         SimpleMetrics.logger.info "#{Time.now} Flushing #{data_points.count} counters to MongoDB"
 
         ts = Time.now.utc.to_i
         bucket = Bucket.first
-        data_points.group_by { |data| data.name }.each_pair do |name,dps|
-          data = DataPoint.aggregate(dps)
-          bucket.save(data, ts)
+
+        data_points.group_by { |dp| dp.name }.each_pair do |name,dps|
+          dp = DataPoint.aggregate(dps)
+          bucket.save(dp, ts)
         end
 
         self.aggregate_all(ts)
@@ -89,40 +102,35 @@ module SimpleMetrics
       ts_bucket(ts) - seconds
     end
 
-    # TODO: only used in tests. remove it!
+    # TODO: only used in tests, do we need it?
     def find_all_at_ts(ts)
-      mongo_result = mongo_coll.find({ :ts => ts_bucket(ts) }).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+      repository.find_all_at_ts(ts_bucket(ts))
     end
 
     def find_all_in_ts_range(from, to)
-      mongo_result = mongo_coll.find({ :ts => { "$gte" => from, "$lte" => to }}).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+      repository.find_all_in_ts_range(from, to)
     end
 
     def find_all_in_ts_range_by_name(from, to, name)
-      mongo_result = mongo_coll.find({ :name => name, :ts => { "$gte" => from, "$lte" => to }}).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+      repository.find_all_in_ts_range_by_name(from, to, name)
     end
 
     def find_all_in_ts_range_by_wildcard(from, to, target)
-      target = target.gsub('.', '\.').gsub('*', '.*')
-      mongo_result = mongo_coll.find({ :name => /#{target}/, :ts => { "$gte" => from, "$lte" => to } }).to_a
-      mongo_result.inject([]) { |result, a| result << DataPoint.create_from_db(a) }
+      repository.find_all_in_ts_range_by_wildcard(from, to, target)
     end
 
     def stats_exist_in_previous_ts?(ts)
-      mongo_coll.find({ :ts => ts }).count > 0
+      repository.count_at(ts) > 0
     end
 
     def find_all_distinct_names
-      mongo_coll.distinct(:name).to_a
+      repository.find_all_distinct_names
     end
 
-    def save(stats, ts)
-      stats.ts = ts_bucket(ts)
-      result = mongo_coll.insert(stats.attributes)
-      SimpleMetrics.logger.debug "SERVER: MongoDB - insert in #{name}: #{stats.inspect}, result: #{result}"
+    def save(data_point, ts)
+      data_point.ts = ts_bucket(ts)
+      repository.save(data_point.attributes)
+      SimpleMetrics.logger.debug "SERVER: MongoDB - insert in #{name}: #{data_point.inspect}"
     end
 
     def capped?
@@ -152,8 +160,8 @@ module SimpleMetrics
 
     private
 
-    def mongo_coll
-      Mongo.collection(name)
+    def repository
+      DataPointRepository.for_retention(name)
     end
 
     def each_ts(from, to)

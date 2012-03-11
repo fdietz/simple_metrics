@@ -12,7 +12,7 @@ options = {
 }
 
 Daemons.run_proc("simple_metrics", options) do
-	SimpleMetrics::Server.new.start
+	SimpleMetrics::UDPServer.new.start
 end
 
 

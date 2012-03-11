@@ -37,8 +37,8 @@ module SimpleMetrics
 
     describe "#save" do
       before do
-        Mongo.truncate_collections
-        Mongo.ensure_collections_exist
+        DataPointRepository.truncate_collections
+        DataPointRepository.ensure_collections_exist
         bucket.save(stats, ts)
       end
 
@@ -65,8 +65,8 @@ module SimpleMetrics
     describe "finder methods" do
 
       before do
-        Mongo.truncate_collections
-        Mongo.ensure_collections_exist
+        DataPointRepository.truncate_collections
+        DataPointRepository.ensure_collections_exist
       end
 
       describe "#find_all_at_ts" do
@@ -136,8 +136,8 @@ module SimpleMetrics
 
     describe "#aggregate_all" do
       before do
-        Mongo.truncate_collections
-        Mongo.ensure_collections_exist
+        DataPointRepository.truncate_collections
+        DataPointRepository.ensure_collections_exist
       end
 
       it "aggregates all counter data points" do
@@ -194,8 +194,8 @@ module SimpleMetrics
 
     describe "#flush_data_points" do
       before do
-        Mongo.truncate_collections
-        Mongo.ensure_collections_exist
+        DataPointRepository.truncate_collections
+        DataPointRepository.ensure_collections_exist
         
         stats1 = DataPoint.create_counter(:name => "key1", :value => 5)
         stats2 = DataPoint.create_counter(:name => "key1", :value => 7)

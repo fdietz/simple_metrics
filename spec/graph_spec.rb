@@ -14,8 +14,8 @@ module SimpleMetrics
     end
 
   	before do
-  	  Mongo.truncate_collections
-  	  Mongo.ensure_collections_exist
+  	  DataPointRepository.truncate_collections
+  	  DataPointRepository.ensure_collections_exist
   	end
 
     describe "#query" do
