@@ -22,6 +22,8 @@ module SimpleMetrics
           if type == "ms"
             # TODO: implement sample_rate handling
             create_timing(:name => name, :value => value)
+          elsif type == "ev"
+            # TODO: implement event 
           elsif type == "g"
             create_gauge(:name => name, :value => (value.to_i || 1) * (1.0 / (sample_rate || 1).to_f) )
           elsif type == "c"
