@@ -18,50 +18,50 @@ Commandline client:
 
 Send a count of 5 for data point "module.test1":
 
-		simple_metrics_client module.test1 -counter 5
+    simple_metrics_client module.test1 -counter 5
 
 Send a timing of 100ms:
 
-		simple_metrics_client module.test1 -timing 100
+    simple_metrics_client module.test1 -timing 100
 
 doing the same, but since we expect a lot of calls we sample the data (10%):
 
-		simple_metrics_client module.test1 -timing 100 --sample_rate 0.1
+    simple_metrics_client module.test1 -timing 100 --sample_rate 0.1
 
 more info:
-	
-		simple_metrics_client --help
+  
+    simple_metrics_client --help
 
 Ruby client API
 ---------------
 
 Initialize client:
 
-		client = SimpleMetrics::Client.new("localhost")
+    client = SimpleMetrics::Client.new("localhost")
 
 sends "com.example.test1:1|c" via UDP:
 
-		client.increment("com.example.test1")
+    client.increment("com.example.test1")
 
 sends "com.example.test1:-1|c":
 
-		client.decrement("com.example.test1")
+    client.decrement("com.example.test1")
 
 sends "com.example.test1:5|c" (a counter with a relative value of 5):
 
-		client.count("com.example.test1", 5)
+    client.count("com.example.test1", 5)
 
 sends "com.example.test1:5|c|@0.1" with a sample rate of 10%:
 
-		client.count("com.example.test1", 5, 0.1)
+    client.count("com.example.test1", 5, 0.1)
 
 sends "com.example.test1:5|g" (meaning gauge, an absolute value of 5):
 
-		client.count("com.example.test1", 5)
+    client.gauge("com.example.test1", 5)
 
 sends "com.example.test1:100|ms":
 
-		client.timing("com.example.test1")
+    client.timing("com.example.test1")
 
 More examples in the examples/ directory.
 
@@ -72,15 +72,15 @@ We provide a simple commandline wrapper using daemons gem (http://daemons.rubyfo
 
 Start Server as background daemond:
 
-		simple_metrics_server start
+    simple_metrics_server start
 
 Start in foreground:
 
-		simple_metrics_server start -t
+    simple_metrics_server start -t
 
 Show Help:
 
-		simple_metrics_server --help
+    simple_metrics_server --help
 
 Round Robin Database Principles in MongoDB
 ------------------------------------------
@@ -91,7 +91,7 @@ We use 4 collections in MongoDB each with more coarse timestamp buckets:
 * 10 min
 * 1 day
 
-The 10s and 1m collections are capped collections and have a fixed size. The other will store the data as long as we have sufficient disc space.
+The 10sec and 1min collections are capped collections and have a fixed size. The others will store the data as long as there is sufficient disc space.
 
 How can we map these times to graphs?
 
