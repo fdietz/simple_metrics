@@ -37,7 +37,7 @@ module SimpleMetrics
         bucket = Bucket.first
 
         data_points.group_by { |dp| dp.name }.each_pair do |name,dps|
-          dp = DataPoint.aggregate(dps)
+          dp = ValueAggregation.aggregate(dps)
           bucket.save(dp, ts)
         end
 
@@ -55,7 +55,7 @@ module SimpleMetrics
           unless bucket.stats_exist_in_previous_ts?(previous_ts)
             data_points = self.first.find_all_in_ts_range(previous_ts, current_ts)
             data_points.group_by { |data| data.name }.each_pair do |name,dps|
-              data = DataPoint.aggregate(dps)
+              data = ValueAggregation.aggregate(dps)
               bucket.save(data, previous_ts)
             end
           end

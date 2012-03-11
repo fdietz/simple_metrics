@@ -30,7 +30,7 @@ module SimpleMetrics
     def query(bucket, from, to, target)
       if wild_card_query?(target)
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
-        result = DataPoint.aggregate_array(result, target)
+        result = ArrayAggregation.aggregate(result, target)
         bucket.fill_gaps(from, to, result)
       elsif target.is_a?(String)
         result = bucket.find_all_in_ts_range_by_name(from, to, target)

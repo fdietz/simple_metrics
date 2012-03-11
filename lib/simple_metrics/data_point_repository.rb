@@ -116,7 +116,7 @@ module SimpleMetrics
     end
 
     def data_point(result)
-      DataPoint.new(:name => result["name"], :value => result["value"], :ts => result["ts"], :type => result["type"])
+      DataPoint.build(:name => result["name"], :value => result["value"], :ts => result["ts"], :type => result["type"])
     end
 
     def data_points(results)
