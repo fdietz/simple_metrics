@@ -16,6 +16,7 @@ require "simple_metrics/array_aggregation"
 require "simple_metrics/bucket"
 require "simple_metrics/graph"
 require "simple_metrics/functions"
+require "simple_metrics/app"
 
 module SimpleMetrics
   extend self

@@ -1,0 +1,45 @@
+<div id="graph">
+</div>
+
+<pre>
+  <%= JSON.generate(@series) %>
+</pre>
+
+
+<script>
+// var initialSize = <%= @target.is_a?(Array) ? @target.size : 1 %>;
+// var initData = [];
+// for(i = 0; i < initialSize; i++) {
+//   initData.push({'name':'', 'data':[{'x':0,'y':0}]})
+// };
+// var initial = {'series':initData};
+
+// pastel = [
+//   '#239928',
+//   '#6CCC70',
+//   '#DEFFA1',
+//   '#DEFFA1',
+//   '#DEFFA1',
+//   '#362F2B',
+//   '#BFD657',
+//   '#FF6131',
+//   '#FFFF9D',
+//   '#BEEB9F',
+//   '#79BD8F',
+//   '#00A388'
+// ].reverse();
+
+// palette = new Rickshaw.Color.Palette( { scheme: pastel} );
+
+graph = new Rickshaw.Graph( {
+  element: document.getElementById("graph"),
+  width: 640,
+  height: 480,
+  //renderer: 'line',
+  series: <%= JSON.generate(@series) %>
+  //series: addColorToSeries(initial.series, palette)
+} );
+
+graph.render();
+
+</script>
