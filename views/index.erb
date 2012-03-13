@@ -1,7 +1,9 @@
-<h1>Hello World</h1>
+<h1>Available Metrics</h1>
 
 <ul>
   <% @metric_names.each do |name| %>
-    <li><%= name %></li>
+    <li>
+      <a href="/graph?target[]=<%= name %>"><%= name %></a>
+    </li>
   <% end %>  
 </ul>
