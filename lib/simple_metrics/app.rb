@@ -37,7 +37,7 @@ module SimpleMetrics
       result = SimpleMetrics::Graph.query_all(bucket, to, from, *targets)
 
       result.map do |data_point|
-        {:name => data_point.first, :data => data_point.last.map { |p| { :x => p[:ts], :y => p[:value] || 0 } }}
+        { :name => data_point.first, :data => data_point.last.map { |p| { :x => p[:ts], :y => p[:value] || 0 } } }
       end
     end
 

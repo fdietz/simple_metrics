@@ -1,45 +1,113 @@
-<div id="graph">
+<style>
+
+#chart_container {
+  float: left;
+  position: relative;
+}
+
+#graph {
+  display: inline-block;
+}
+
+#y_axis {
+  float: left;
+  width: 40px;
+}
+
+/* plot width */
+#graph svg path {
+  stroke-width: 2;
+}
+
+/* hide y-axis matrix */
+.rickshaw_graph .x_tick {
+  stroke: 0;
+  border: 0;
+}
+
+/* hide y-axis big line */
+.rickshaw_graph .y_ticks path {
+  fill: none;
+  stroke: none;
+}
+
+/* hide y-axis tick */
+.rickshaw_graph .y_ticks .tick {
+  stroke: none;
+}
+
+/* show x-axis matrix */
+.rickshaw_graph .y_grid .tick {
+  stroke: rgba(0,0,0,0.1);
+  stroke-width: 1px;
+  stroke-dasharray: 0;
+}
+
+/* move x-axis title below graph */
+.rickshaw_graph .x_tick .title {
+  margin-left: 3px;
+  bottom: -20px;
+}
+</style>
+
+<div id="chart_container">
+  <div id="y_axis"></div>
+  <div id="graph"></div>
 </div>
 
-<pre>
-  <%= JSON.generate(@series) %>
-</pre>
-
-
 <script>
-// var initialSize = <%= @target.is_a?(Array) ? @target.size : 1 %>;
-// var initData = [];
-// for(i = 0; i < initialSize; i++) {
-//   initData.push({'name':'', 'data':[{'x':0,'y':0}]})
-// };
-// var initial = {'series':initData};
+var data = <%= JSON.generate(@series) %>;
 
-// pastel = [
-//   '#239928',
-//   '#6CCC70',
-//   '#DEFFA1',
-//   '#DEFFA1',
-//   '#DEFFA1',
-//   '#362F2B',
-//   '#BFD657',
-//   '#FF6131',
-//   '#FFFF9D',
-//   '#BEEB9F',
-//   '#79BD8F',
-//   '#00A388'
-// ].reverse();
+var pastel = [
+  '#239928',
+  '#6CCC70',
+  '#DEFFA1',
+  '#DEFFA1',
+  '#DEFFA1',
+  '#362F2B',
+  '#BFD657',
+  '#FF6131',
+  '#FFFF9D',
+  '#BEEB9F',
+  '#79BD8F',
+  '#00A388'
+].reverse();
 
-// palette = new Rickshaw.Color.Palette( { scheme: pastel} );
+var customPalette = new Rickshaw.Color.Palette( { scheme: pastel } );
+var spectrum14Palette = new Rickshaw.Color.Palette( { scheme: "spectrum14" } );
+
+function addColorToSeries(data, palette) {
+  var result = [];
+  $.each(data, function(k, v){
+    v.color = palette.color();
+    result.push(v);
+  });
+  return result;
+}
 
 graph = new Rickshaw.Graph( {
   element: document.getElementById("graph"),
   width: 640,
   height: 480,
-  //renderer: 'line',
-  series: <%= JSON.generate(@series) %>
-  //series: addColorToSeries(initial.series, palette)
+  renderer: 'line',
+  series: addColorToSeries(data, spectrum14Palette)
+} );
+
+var x_axis = new Rickshaw.Graph.Axis.Time( { 
+  graph: graph 
+} );
+
+var y_axis = new Rickshaw.Graph.Axis.Y( {
+  graph: graph,
+  orientation: 'left',
+  tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+  element: document.getElementById('y_axis'),
 } );
 
 graph.render();
+
+var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+  graph: graph
+} );
 
 </script>

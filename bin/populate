@@ -8,7 +8,7 @@ require "simple_metrics"
 
 ts = Time.now.to_i
 
-name = "test.post.clicks2"
+name = "test.post.clicks4"
 
 SimpleMetrics::DataPointRepository.ensure_collections_exist
 
