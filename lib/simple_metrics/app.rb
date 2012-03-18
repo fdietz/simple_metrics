@@ -9,6 +9,18 @@ module SimpleMetrics
     set :public_folder, File.expand_path('../../..//public', __FILE__)
 
     helpers do
+      def graph_title(time)
+        case time
+        when "minute"
+          "Minute"
+        when "hour"
+          "Hour"
+        when "day"
+          "Day"
+        when "week"
+          "Week"
+        end
+      end
     end
 
     # def initialize(options = {})
@@ -20,13 +32,22 @@ module SimpleMetrics
       erb :index
     end
 
-    get "/graph" do
+    get "/metric" do
       @from    = (params[:from]   || Time.now).to_i
       @time    = params[:time]   || 'minute'
       @targets = params[:target] || Array('com.test')
       @data_points = prepare_data_points(@from, @time, *@targets)
       @series = @data_points
       erb :show
+    end
+
+    get "/graph" do
+      @from    = (params[:from]   || Time.now).to_i
+      @time    = params[:time]   || 'minute'
+      @targets = params[:target] || Array('com.test')
+      @data_points = prepare_data_points(@from, @time, *@targets)
+      @series = @data_points
+      erb :graph, :layout => false
     end
 
     private

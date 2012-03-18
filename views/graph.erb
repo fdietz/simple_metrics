@@ -1,0 +1,93 @@
+<h3><%= graph_title params[:time] %></h3><br>
+<div class="graph" id="graph-<%= params[:time] %>"/>
+<div class="y-axis" id="y-axis-<%= params[:time] %>"/>
+
+<script>
+
+  var data = <%= JSON.generate(@series) %>;
+
+  var pastel = [
+    '#239928',
+    '#6CCC70',
+    '#DEFFA1',
+    '#DEFFA1',
+    '#DEFFA1',
+    '#362F2B',
+    '#BFD657',
+    '#FF6131',
+    '#FFFF9D',
+    '#BEEB9F',
+    '#79BD8F',
+    '#00A388'
+  ].reverse();
+
+  var customPalette = new Rickshaw.Color.Palette( { scheme: pastel } );
+  var spectrum14Palette = new Rickshaw.Color.Palette( { scheme: "spectrum14" } );
+
+  function addColorToSeries(data, palette) {
+    var result = [];
+    $.each(data, function(k, v){
+      v.color = palette.color();
+      result.push(v);
+    });
+    return result;
+  };
+
+  graph = new Rickshaw.Graph( {
+    element: document.getElementById("graph-<%= params[:time] %>"),
+    // width: 320,
+    // height: 200,
+    renderer: 'line',
+    series: addColorToSeries(data, spectrum14Palette)
+  } );
+
+  function timeUnit(time) {
+    var timeFixture = new Rickshaw.Fixtures.Time();
+    var minuteCustom = {
+      name: 'minute',
+      seconds: 60,
+      formatter: function(d) { return d.getUTCHours()+':'+d.getUTCMinutes()+'h'}
+    };
+    var hourCustom = {
+      name: 'hour',
+      seconds: 60*15,
+      formatter: function(d) { return d.getUTCHours()+':'+d.getUTCMinutes()+'h'}
+    };
+    var dayCustom = {
+      name: 'day',
+      seconds: 60*60*2,
+      formatter: function(d) { return d.getUTCHours()+'h'}
+    };
+    var weekCustom = {
+      name: 'week',
+      seconds: 60*60*2*7*2,
+      formatter: function(d) { return d.getUTCDate()+'. '+d.getUTCMonth()+'.'}
+      };
+
+    switch(time){
+      case 'minute': return minuteCustom; break;
+      case 'hour': return hourCustom; break;
+      case 'day': return dayCustom; break;
+      case 'week': return weekCustom; break;
+    };
+  };
+
+  var x_axis = new Rickshaw.Graph.Axis.Time( { 
+    graph: graph,
+    timeUnit: timeUnit("<%= params[:time] %>")
+  } );
+
+  var y_axis = new Rickshaw.Graph.Axis.Y( {
+    graph: graph,
+    orientation: 'left',
+    tickFormat: Rickshaw.Fixtures.Number.formatKMBT,
+    element: document.getElementById('y-axis-<%= params[:time] %>'),
+  } );
+
+  graph.render();
+
+  var hoverDetail = new Rickshaw.Graph.HoverDetail( {
+    graph: graph
+  } );
+
+</script>

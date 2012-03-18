@@ -3,7 +3,7 @@
 <ul>
   <% @metric_names.each do |name| %>
     <li>
-      <a href="/graph?target[]=<%= name %>"><%= name %></a>
+      <a href="/metric?target[]=<%= name %>"><%= name %></a>
     </li>
   <% end %>  
 </ul>
