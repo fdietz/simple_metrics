@@ -13,6 +13,7 @@ require "simple_metrics/data_point/gauge"
 require "simple_metrics/data_point/timing"
 require "simple_metrics/value_aggregation"
 require "simple_metrics/array_aggregation"
+require "simple_metrics/update_aggregation"
 require "simple_metrics/bucket"
 require "simple_metrics/graph"
 require "simple_metrics/functions"
@@ -64,7 +65,7 @@ module SimpleMetrics
     },
     {
       :name    => 'stats_per_day',
-      :seconds => 86400,
+      :seconds => 600*6*24,
       :size    => 0,
       :capped  => false
     }

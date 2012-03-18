@@ -148,10 +148,11 @@ module SimpleMetrics
         bucket2 = Bucket[1]
         ts_at_insert = bucket2.previous_ts_bucket(ts)
         bucket.save(stats1a, ts_at_insert)
+        Bucket.aggregate(stats1a)
         bucket.save(stats1b, ts_at_insert)
+        Bucket.aggregate(stats1b)
         bucket.save(stats2, ts_at_insert)
-
-        Bucket.aggregate_all(ts)
+        Bucket.aggregate(stats2)
 
         results = bucket2.find_all_at_ts(ts_at_insert)
         results.should have(2).items
@@ -173,10 +174,11 @@ module SimpleMetrics
         bucket2 = Bucket[1]
         ts_at_insert = bucket2.previous_ts_bucket(ts)
         bucket.save(stats1a, ts_at_insert)
+        Bucket.aggregate(stats1a)
         bucket.save(stats1b, ts_at_insert)
+        Bucket.aggregate(stats1b)
         bucket.save(stats2, ts_at_insert)
-
-        Bucket.aggregate_all(ts)
+        Bucket.aggregate(stats2)
 
         results = bucket2.find_all_at_ts(ts_at_insert)
         results.should have(2).items
@@ -208,11 +210,6 @@ module SimpleMetrics
 
         results = bucket.find_all_at_ts(ts)
         results.should have(2).items
-      end
-
-      it "calls aggregate_all afterwards" do
-        mock(Bucket).aggregate_all(ts)
-        Bucket.flush_data_points(@stats)
       end
 
       it "saves all stats and aggregate if duplicates found" do

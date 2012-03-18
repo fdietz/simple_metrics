@@ -21,7 +21,7 @@ module SimpleMetrics
     end
 
     get "/graph" do
-      @from    = params[:from]   || Time.now.to_i
+      @from    = (params[:from]   || Time.now).to_i
       @time    = params[:time]   || 'minute'
       @targets = params[:target] || Array('com.test')
       @data_points = prepare_data_points(@from, @time, *@targets)
@@ -33,7 +33,6 @@ module SimpleMetrics
 
     def prepare_data_points(from, time, *targets)
       to = from - time_range(time)
-      puts "= from: #{from}, to: #{to}, target: #{targets.inspect}"
       result = SimpleMetrics::Graph.query_all(bucket, to, from, *targets)
 
       result.map do |data_point|

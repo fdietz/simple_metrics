@@ -26,38 +26,33 @@ module SimpleMetrics
             SimpleMetrics.logger.debug "Invalid Data skipped: #{str}, #{e}"
           end
         end
-        flush_data_points(data_points)
+        flush_data_points(data_points, Time.now.utc.to_i)
       end
 
-      def flush_data_points(data_points)
+      def flush_data_points(data_points, ts = nil)
         return if data_points.empty?
         SimpleMetrics.logger.info "#{Time.now} Flushing #{data_points.count} counters to MongoDB"
 
-        ts = Time.now.utc.to_i
+        ts   ||= Time.now.utc.to_i
         bucket = Bucket.first
 
         data_points.group_by { |dp| dp.name }.each_pair do |name,dps|
           dp = ValueAggregation.aggregate(dps)
           bucket.save(dp, ts)
+          aggregate(dp)  
         end
-
-        self.aggregate_all(ts)
       end
 
-      def aggregate_all(ts)
-        ts_bucket = self.first.ts_bucket(ts)
-
+      def aggregate(dp)
         coarse_buckets.each do |bucket|
-          current_ts = bucket.ts_bucket(ts_bucket)
-          previous_ts = bucket.previous_ts_bucket(ts_bucket)
-          SimpleMetrics.logger.debug "Aggregating #{bucket.name} #{previous_ts}....#{current_ts} (#{humanized_timestamp(previous_ts)}..#{humanized_timestamp(current_ts)})"
-
-          unless bucket.stats_exist_in_previous_ts?(previous_ts)
-            data_points = self.first.find_all_in_ts_range(previous_ts, current_ts)
-            data_points.group_by { |data| data.name }.each_pair do |name,dps|
-              data = ValueAggregation.aggregate(dps)
-              bucket.save(data, previous_ts)
-            end
+          existing_dp = bucket.find_data_point_at_ts(dp.ts, dp.name)
+          if existing_dp
+            UpdateAggregation.aggregate(existing_dp, dp)
+            bucket.update(existing_dp, existing_dp.ts)
+          else
+            dp.sum   = dp.value
+            dp.total = 1
+            bucket.save(dp, dp.ts)
           end
         end
       end
@@ -91,7 +86,7 @@ module SimpleMetrics
     end
 
     def ts_bucket(ts)
-      ts / seconds * seconds
+      (ts / seconds) * seconds
     end
 
     def next_ts_bucket(ts)
@@ -107,6 +102,10 @@ module SimpleMetrics
       repository.find_all_at_ts(ts_bucket(ts))
     end
 
+    def find_data_point_at_ts(ts, name)
+      repository.find_data_point_at_ts(ts_bucket(ts), name)
+    end
+
     def find_all_in_ts_range(from, to)
       repository.find_all_in_ts_range(from, to)
     end
@@ -119,6 +118,10 @@ module SimpleMetrics
       repository.find_all_in_ts_range_by_wildcard(from, to, target)
     end
 
+    def data_points_exist_at_ts?(ts, name)
+      repository.count_for_name_at(ts, name) > 0
+    end
+
     def stats_exist_in_previous_ts?(ts)
       repository.count_at(ts) > 0
     end
@@ -127,10 +130,16 @@ module SimpleMetrics
       repository.find_all_distinct_names
     end
 
-    def save(data_point, ts)
-      data_point.ts = ts_bucket(ts)
-      repository.save(data_point)
-      SimpleMetrics.logger.debug "SERVER: MongoDB - insert in #{name}: #{data_point.inspect}"
+    def save(dp, ts)
+      dp.ts = ts_bucket(ts)
+      repository.save(dp)
+      SimpleMetrics.logger.debug "SERVER: MongoDB - insert in #{name}: #{dp.inspect}"
+    end
+
+    def update(dp, ts)
+      dp.ts = ts_bucket(ts)
+      repository.update(dp, ts)
+      SimpleMetrics.logger.debug "SERVER: MongoDB - update in #{name}: #{dp.inspect}"
     end
 
     def capped?

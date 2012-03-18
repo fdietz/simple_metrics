@@ -73,9 +73,18 @@ module SimpleMetrics
       @collection.insert(result.attributes)
     end
 
+    def update(dp, ts)
+      @collection.update({ "_id" => dp.id }, { "$set" => { :value => dp.value, :sum => dp.sum, :total => dp.total }})  
+    end
+
     def find_all_at_ts(ts)
       results = @collection.find({ :ts => ts }).to_a
       data_points(results)
+    end
+
+    def find_data_point_at_ts(ts, name)
+      result = @collection.find_one({ :ts => ts, :name => name })
+      data_point(result) if result
     end
 
     def find_all_in_ts_range(from, to)
@@ -97,6 +106,10 @@ module SimpleMetrics
       @collection.find({ :ts => ts }).count
     end
 
+    def count_for_name_at(ts, name)
+      @collection.find({ :ts => ts, :name => name }).count
+    end
+
     def find_all_distinct_names
       @collection.distinct(:name).to_a
     end
@@ -116,7 +129,7 @@ module SimpleMetrics
     end
 
     def data_point(result)
-      DataPoint.build(:name => result["name"], :value => result["value"], :ts => result["ts"], :type => result["type"])
+      DataPoint.build(:id => result["_id"], :name => result["name"], :value => result["value"], :ts => result["ts"], :type => result["type"], :sum => result["sum"], :total => result["total"])
     end
 
     def data_points(results)
