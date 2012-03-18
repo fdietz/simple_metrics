@@ -18,10 +18,11 @@ minute = 60
 hour   = minute * 60
 
 def create_dps(name)
-  previous_value = rand(300)
-  (1..5).inject([]) do |result, index|
+  previous_value = 20
+  (1..1).inject([]) do |result, index|
     value = previous_value+rand(20)
     result << SimpleMetrics::DataPoint.create_counter(:name => name, :value => value)
+    previous_value = value
     result
   end
 end

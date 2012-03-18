@@ -53,6 +53,7 @@
 <div id="chart_container">
   <div id="y_axis"></div>
   <div id="graph"></div>
+  <div id="slider"></div>
 </div>
 
 <script>
@@ -93,8 +94,40 @@ graph = new Rickshaw.Graph( {
   series: addColorToSeries(data, spectrum14Palette)
 } );
 
+function timeUnit(time) {
+  var timeFixture = new Rickshaw.Fixtures.Time();
+  var minuteCustom = {
+    name: 'minute',
+    seconds: 60,
+    formatter: function(d) { return d.getUTCHours()+':'+d.getUTCMinutes()+'h'}
+  };
+  var hourCustom = {
+    name: 'hour',
+    seconds: 60*15,
+    formatter: function(d) { return d.getUTCHours()+':'+d.getUTCMinutes()+'h'}
+  };
+  var dayCustom = {
+    name: 'day',
+    seconds: 60*60*2,
+    formatter: function(d) { return d.getUTCHours()+'h'}
+  };
+  var weekCustom = {
+    name: 'week',
+    seconds: 60*60*2*7*2,
+    formatter: function(d) { return d.getUTCDate()+'. '+d.getUTCMonth()+'.'}
+    };
+
+  switch(time){
+    case 'minute': return minuteCustom; break;
+    case 'hour': return hourCustom; break;
+    case 'day': return dayCustom; break;
+    case 'week': return weekCustom; break;
+  };
+}
+
 var x_axis = new Rickshaw.Graph.Axis.Time( { 
-  graph: graph 
+  graph: graph,
+  timeUnit: timeUnit("<%= params[:time] %>")
 } );
 
 var y_axis = new Rickshaw.Graph.Axis.Y( {

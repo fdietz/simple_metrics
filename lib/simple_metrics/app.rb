@@ -34,14 +34,13 @@ module SimpleMetrics
     def prepare_data_points(from, time, *targets)
       to = from - time_range(time)
       result = SimpleMetrics::Graph.query_all(bucket, to, from, *targets)
-
       result.map do |data_point|
         { :name => data_point.first, :data => data_point.last.map { |p| { :x => p[:ts], :y => p[:value] || 0 } } }
       end
     end
 
     def one_minute
-      3600
+      60
     end
 
     def one_hour
@@ -59,7 +58,7 @@ module SimpleMetrics
     def time_range(time)
       case time
       when 'minute'
-        one_minute
+        5*one_minute
       when 'hour'
         one_hour
       when 'day'
