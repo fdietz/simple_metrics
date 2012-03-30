@@ -79,32 +79,36 @@ module SimpleMetrics
     @@buckets = buckets
   end
 
-  MONGODB_DEFAULTS = {
-    :pool_size => 5, 
-    :timeout   => 5,
-    :strict    => true
-  }.freeze
-
-  DB_CONFIG_DEFAULTS = {
+  MONGODB_CONFIG_DEFAULTS = {
     :host      => 'localhost',
     :port      => 27017,
     :prefix    => 'development'
   }.freeze
 
   def db_config=(options)
-    @@db_config = {
-      :host    => options.delete(:host) || 'localhost',
-      :port    => options.delete(:port) || 27017,
-      :db_name => "simple_metrics_#{options.delete(:prefix)}",
-      :options => MONGODB_DEFAULTS.merge(options)
-    }
+    @@db_config = MONGODB_CONFIG_DEFAULTS.merge(options)
   end
 
   def db_config
-    @@db_config ||= DB_CONFIG_DEFAULTS.merge(
-      :db_name => "simple_metrics_#{DB_CONFIG_DEFAULTS[:prefix]}",
-      :options => MONGODB_DEFAULTS
-    )
+    @@db_config ||= MONGODB_CONFIG_DEFAULTS
+  end
+
+  def db_name
+    "simple_metrics_#{db_config[:prefix]}"
+  end
+
+  MONGODB_OPTIONS_DEFAULTS = {
+    :pool_size => 5, 
+    :timeout   => 5,
+    :strict    => true
+  }.freeze
+
+  def mongodb_options=(options)
+    @@mongo_db_options = MONGODB_OPTIONS_DEFAULTS.merge(options)
+  end
+
+  def mongodb_options
+    @@mongo_db_options ||= MONGODB_OPTIONS_DEFAULTS
   end
 
 end

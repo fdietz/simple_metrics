@@ -21,7 +21,7 @@ module SimpleMetrics
       end
 
       def db
-        @@db ||= connection.db(db_config[:db_name], db_config[:options])
+        @@db ||= connection.db(SimpleMetrics.db_name, SimpleMetrics.mongodb_options)
       end
 
       def db_config
