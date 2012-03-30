@@ -70,7 +70,7 @@ SimpleMetrics Server
 
 We provide a simple commandline wrapper using daemons gem (http://daemons.rubyforge.org/).
 
-Start Server as background daemond:
+Start Server as background daemon:
 
     simple_metrics_server start
 
@@ -81,6 +81,23 @@ Start in foreground:
 Show Help:
 
     simple_metrics_server --help
+
+SimpleMetrics Web App
+-----------------
+
+A small Sinatra app is provided using the vegas gem (https://github.com/quirkey/vegas).
+
+Start web app as background daemon:
+
+    simple_metrics_web
+
+Start in foreground:
+
+    simple_metrics_web -F
+
+Show Help:
+
+    simple_metrics_web --help
 
 Round Robin Database Principles in MongoDB
 ------------------------------------------

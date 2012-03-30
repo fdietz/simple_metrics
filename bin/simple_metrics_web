@@ -1,0 +1,16 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+
+require "rubygems"
+require 'vegas'
+require "simple_metrics"
+
+Vegas::Runner.new(SimpleMetrics::App, 'simple_metrics_web', {
+  :before_run => lambda {|v|
+    path = (ENV['SIMPLE_METRICS_CONFIG'] || v.args.first)
+    load path.to_s.strip if path
+  }
+}) do |runner, opts, app|
+  # add more options here
+end

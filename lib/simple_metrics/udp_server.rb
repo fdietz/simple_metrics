@@ -30,6 +30,9 @@ module SimpleMetrics
     def start
       SimpleMetrics.logger.info "SERVER: starting up on #{SimpleMetrics.config[:host]}:#{SimpleMetrics.config[:port]}..."
 
+      trap('TERM') { stop }
+      trap('INT')  { stop }
+
       DataPointRepository.ensure_collections_exist
 
       EM.run do

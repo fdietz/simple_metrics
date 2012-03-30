@@ -2,11 +2,15 @@ require "sinatra"
 require "erubis"
 require "json"
 
+if defined? Encoding
+  Encoding.default_external = Encoding::UTF_8
+end
+
 module SimpleMetrics
   class App < Sinatra::Base
 
-    set :views, ::File.expand_path('../../../views', __FILE__)  
-    set :public_folder, File.expand_path('../../..//public', __FILE__)
+    set :views, ::File.expand_path('../views', __FILE__)  
+    set :public_folder, File.expand_path('../public', __FILE__)
 
     helpers do
       def graph_title(time)
@@ -33,7 +37,7 @@ module SimpleMetrics
     end
 
     get "/metric" do
-      @from    = (params[:from]   || Time.now).to_i
+      @from    = (params[:from]  || Time.now).to_i
       @time    = params[:time]   || 'minute'
       @targets = params[:target] || Array('com.test')
       @data_points = prepare_data_points(@from, @time, *@targets)
@@ -42,7 +46,7 @@ module SimpleMetrics
     end
 
     get "/graph" do
-      @from    = (params[:from]   || Time.now).to_i
+      @from    = (params[:from]  || Time.now).to_i
       @time    = params[:time]   || 'minute'
       @targets = params[:target] || Array('com.test')
       @data_points = prepare_data_points(@from, @time, *@targets)

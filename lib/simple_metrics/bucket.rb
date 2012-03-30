@@ -106,6 +106,7 @@ module SimpleMetrics
       repository.find_data_point_at_ts(ts_bucket(ts), name)
     end
 
+    # TODO: only used in tests, do we need it?
     def find_all_in_ts_range(from, to)
       repository.find_all_in_ts_range(from, to)
     end
@@ -118,10 +119,12 @@ module SimpleMetrics
       repository.find_all_in_ts_range_by_wildcard(from, to, target)
     end
 
+    # TODO: only used in tests, do we need it?
     def data_points_exist_at_ts?(ts, name)
       repository.count_for_name_at(ts, name) > 0
     end
 
+    # TODO: only used in tests, do we need it?
     def stats_exist_in_previous_ts?(ts)
       repository.count_at(ts) > 0
     end
@@ -146,6 +149,7 @@ module SimpleMetrics
       @capped == true
     end
 
+    # TODO refactor, move to graph.rb
     def fill_gaps(from, to, query_result)
       return query_result if query_result.nil? || query_result.size == 0
       
