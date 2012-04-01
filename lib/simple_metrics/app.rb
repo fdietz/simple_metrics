@@ -27,28 +27,20 @@ module SimpleMetrics
       end
     end
 
-    # def initialize(options = {})
-    #   super(nil)
-    # end
-
     get "/" do
       @metric_names = SimpleMetrics::Bucket.first.find_all_distinct_names
       erb :index
     end
 
     get "/metric" do
-      @from    = (params[:from]  || Time.now).to_i
-      @time    = params[:time]   || 'minute'
-      @targets = params[:target] || Array('com.test')
-      @data_points = prepare_data_points(@from, @time, *@targets)
-      @series = @data_points
+      @from = (params[:from]  || Time.now).to_i
       erb :show
     end
 
     get "/graph" do
       @from    = (params[:from]  || Time.now).to_i
       @time    = params[:time]   || 'minute'
-      @targets = params[:target] || Array('com.test')
+      @targets = params[:target]
       @data_points = prepare_data_points(@from, @time, *@targets)
       @series = @data_points
       erb :graph, :layout => false
