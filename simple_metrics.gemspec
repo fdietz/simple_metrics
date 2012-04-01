@@ -29,4 +29,5 @@ Gem::Specification.new do |s|
   s.add_dependency "sinatra"
   s.add_dependency "erubis"
   s.add_dependency "vegas", '~> 0.1.2'
+  s.add_dependency "json"
 end
