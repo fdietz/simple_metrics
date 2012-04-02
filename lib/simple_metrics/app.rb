@@ -27,30 +27,63 @@ module SimpleMetrics
       end
     end
 
+    get "/api/metrics" do
+      content_type :json
+      metrics = SimpleMetrics::MetricRepository.find_all
+      metrics.inject([]) { |result, m| result << m.attributes }.to_json
+    end
+
+    get "/api/metrics/:id" do
+      content_type :json
+      metric = SimpleMetrics::MetricRepository.find_one(to_bson_id(params[:id]))
+      metric.attributes.to_json
+    end
+
+    get "/api/graph" do
+      content_type :json
+      from    = (params[:from]  || Time.now).to_i
+      time    = params[:time]   || 'minute'
+      targets = params[:targets]
+      data_points = prepare_data_points(from, time, *targets)
+      data_points.to_json
+    end
+
     get "/" do
-      @metric_names = SimpleMetrics::Bucket.first.find_all_distinct_names
       erb :index
     end
 
-    get "/metric" do
-      @from = (params[:from]  || Time.now).to_i
-      erb :show
+    get "/metrics" do
+      erb :index
     end
 
-    get "/graph" do
-      @from    = (params[:from]  || Time.now).to_i
-      @time    = params[:time]   || 'minute'
-      @targets = params[:target]
-      @data_points = prepare_data_points(@from, @time, *@targets)
-      @series = @data_points
-      erb :graph, :layout => false
+    get "/metrics/:id" do
+      erb :index
     end
+
+    # get "/metric" do
+    #   @from = (params[:from]  || Time.now).to_i
+    #   erb :show
+    # end
+
+    # get "/graph" do
+    #   @from    = (params[:from]  || Time.now).to_i
+    #   @time    = params[:time]   || 'minute'
+    #   @targets = params[:target]
+    #   @data_points = prepare_data_points(@from, @time, *@targets)
+    #   @series = @data_points
+    #   erb :graph, :layout => false
+    # end
 
     private
 
+    # params[:id]
+    def to_bson_id(id) 
+      BSON::ObjectId.from_string(id) 
+    end 
+
     def prepare_data_points(from, time, *targets)
       to = from - time_range(time)
-      result = SimpleMetrics::Graph.query_all(bucket, to, from, *targets)
+      result = SimpleMetrics::Graph.query_all(bucket(time), to, from, *targets)
       result.map do |data_point|
         { :name => data_point.first, :data => data_point.last.map { |p| { :x => p[:ts], :y => p[:value] || 0 } } }
       end
@@ -87,8 +120,8 @@ module SimpleMetrics
       end
     end
 
-    def bucket
-      case @time
+    def bucket(time)
+      case time
       when 'minute'
         SimpleMetrics::Bucket[0]
       when 'hour'

@@ -28,6 +28,7 @@ module SimpleMetrics
     end
 
     def query(bucket, from, to, target)
+      puts "=== bucket: #{bucket.inspect}"
       if wild_card_query?(target)
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
         result = ArrayAggregation.aggregate(result, target)

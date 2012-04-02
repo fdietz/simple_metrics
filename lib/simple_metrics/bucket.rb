@@ -39,6 +39,7 @@ module SimpleMetrics
         data_points.group_by { |dp| dp.name }.each_pair do |name,dps|
           dp = ValueAggregation.aggregate(dps)
           bucket.save(dp, ts)
+          update_metric(dp)
           aggregate(dp)  
         end
       end
@@ -58,6 +59,15 @@ module SimpleMetrics
       end
 
       private
+
+      def update_metric(dp)
+        metric = MetricRepository.find_one_by_name(dp.name)
+        if metric
+          MetricRepository.update(Metric.new(:name => dp.name, :total => metric.total + 1))
+        else
+          MetricRepository.save(Metric.new(:name => dp.name, :total => 1))
+        end
+      end
 
       def coarse_buckets
         Bucket.all.sort_by! { |r| r.seconds }[1..-1]

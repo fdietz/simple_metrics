@@ -17,6 +17,8 @@ require "simple_metrics/update_aggregation"
 require "simple_metrics/bucket"
 require "simple_metrics/graph"
 require "simple_metrics/functions"
+require "simple_metrics/metric"
+require "simple_metrics/metric_repository"
 require "simple_metrics/app"
 
 module SimpleMetrics
@@ -99,8 +101,7 @@ module SimpleMetrics
 
   MONGODB_OPTIONS_DEFAULTS = {
     :pool_size => 5, 
-    :timeout   => 5,
-    :strict    => true
+    :timeout   => 5
   }.freeze
 
   def mongodb_options=(options)

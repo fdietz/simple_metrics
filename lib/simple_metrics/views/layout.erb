@@ -13,9 +13,12 @@
 
   <script src="js/jquery-1.7.1.min.js" type="text/javascript"></script>
   <script src="js/bootstrap.min.js" type="text/javascript"></script>
+  <script src="js/underscore-1.3.1.min.js" type="text/javascript"></script>
+  <script src="js/backbone-0.9.2.min.js" type="text/javascript"></script>
+  <script src="js/handlebars-1.0.0.beta.6.js" type="text/javascript"></script>
   <script src="js/d3.v2.min.js" type="text/javascript"></script>
   <script src="js/rickshaw.min.js" type="text/javascript"></script>
-  <script src="js/graph.js" type="text/javascript"></script>
+  <script src="js/application.js" type="text/javascript"></script>
 
   <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
   <!--[if lt IE 9]>
@@ -27,6 +30,67 @@
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
   </style>
+
+  <script id="graph" type="text/x-handlebars.template">
+    <h3>{{time}}</h3>
+    <div class="graph" id="graph-{{time}}"/>
+    <div class="y-axis" id="y-axis-{{time}}"/>
+  </script>
+
+  <script id="metric-list" type="text/x-handlebars-template">
+    <h2>Metric List</h2>
+    <ul>
+      {{#each metrics}}
+        <li>
+          Item: <a href="#metrics/{{id}}">{{name}}</a>
+        </li>
+      {{/each}}
+    </ul>
+  </script>
+
+  <script id="metric-details" type="text/x-handlebars-template">
+    {{#with metric}}
+      <ul class="breadcrumb">
+        <li>
+          <a href="#metrics">Available Metrics</a> <span class="divider">/</span>
+        </li>
+        <li class="active">{{name}}</li>
+      </ul>
+
+      <div class="row-fluid">
+        <div class="span12">
+          <div style="margin-bottom:2em" class="row-fluid">
+            <div id="graph-container-minute" class="span6">
+              <h3>Minute</h3>
+              <div class="graph" id="graph-minute"/>
+              <div class="y-axis" id="y-axis-minute"/>
+            </div>
+            <div id="graph-container-hour" class="span6">
+              <!--
+              <h3>Hourly</h3>
+              <div class="graph" id="graph-hour"/>
+              <div class="y-axis" id="y-axis-hour"/>
+              -->
+            </div>
+          </div>
+          <div class="row-fluid">
+            <div id="graph-container-day" class="span6">
+              <h3>Day</h3>
+              <div class="graph" id="graph-day"/>
+              <div class="y-axis" id="y-axis-day"/>
+            </div>
+            <div id="graph-container-week" class="span6">
+              <h3>Week</h3>
+              <div class="graph" id="graph-day"/>
+              <div class="y-axis" id="y-axis-day"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    {{/with}}
+  </script>
+
 </head>
 
 <body>
@@ -38,11 +102,12 @@
          <span class="icon-bar"></span>
          <span class="icon-bar"></span>
        </a>
-       <a class="brand" href="#">SimpleMetrics</a>
+       <a class="brand" href="/">SimpleMetrics</a>
        <div class="nav-collapse">
          <ul class="nav">
-           <li class="active"><a href="#">Home</a></li>
-           <li><a href="#about">About</a></li>
+           <li class="active"><a href="/">Home</a></li>
+           <li><a href="/dashboard">Dashboard</a></li>
+           <li><a href="/about">About</a></li>
          </ul>
        </div><!--/.nav-collapse -->
      </div>
@@ -50,6 +115,6 @@
  </div>
 
   <div class="container">
-     <%= yield %>
+    <div id="main"></div>
   </div> <!-- /container -->
 </html>
