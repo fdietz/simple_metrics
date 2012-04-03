@@ -48,17 +48,17 @@ module SimpleMetrics
       data_points.to_json
     end
 
-    get "/" do
+    get "/*" do
       erb :index
     end
 
-    get "/metrics" do
-      erb :index
-    end
+    # get "/metrics" do
+    #   erb :index
+    # end
 
-    get "/metrics/:id" do
-      erb :index
-    end
+    # get "/metrics/:id" do
+    #   erb :index
+    # end
 
     # get "/metric" do
     #   @from = (params[:from]  || Time.now).to_i

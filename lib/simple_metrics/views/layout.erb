@@ -32,27 +32,44 @@
   </style>
 
   <script id="graph" type="text/x-handlebars.template">
-    <h3>{{time}}</h3>
-    <div class="graph" id="graph-{{time}}"/>
-    <div class="y-axis" id="y-axis-{{time}}"/>
+    <h3>{{time}}</h3></br>
+    <div class="graph"/>
+    <div class="y-axis"/>
   </script>
 
   <script id="metric-list" type="text/x-handlebars-template">
-    <h2>Metric List</h2>
-    <ul>
-      {{#each metrics}}
-        <li>
-          Item: <a href="#metrics/{{id}}">{{name}}</a>
-        </li>
-      {{/each}}
+    <ul class="breadcrumb">
+      <li>
+        <a href="#metrics">Metrics</a> <span class="divider">/</span>
+      </li>
+      <li class="active">{{name}}</li>
     </ul>
+
+    <table class="table table-striped" style="font-size: 13px">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Total</th>
+          <th>Last Modified</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each metrics}}
+          <tr>
+            <td><a href="#metrics/{{id}}">{{name}}</a></td>
+            <td>{{total}}</td>
+            <td>{{updated_at}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
   </script>
 
   <script id="metric-details" type="text/x-handlebars-template">
     {{#with metric}}
       <ul class="breadcrumb">
         <li>
-          <a href="#metrics">Available Metrics</a> <span class="divider">/</span>
+          <a href="#metrics">Metrics</a> <span class="divider">/</span>
         </li>
         <li class="active">{{name}}</li>
       </ul>
@@ -60,30 +77,12 @@
       <div class="row-fluid">
         <div class="span12">
           <div style="margin-bottom:2em" class="row-fluid">
-            <div id="graph-container-minute" class="span6">
-              <h3>Minute</h3>
-              <div class="graph" id="graph-minute"/>
-              <div class="y-axis" id="y-axis-minute"/>
-            </div>
-            <div id="graph-container-hour" class="span6">
-              <!--
-              <h3>Hourly</h3>
-              <div class="graph" id="graph-hour"/>
-              <div class="y-axis" id="y-axis-hour"/>
-              -->
-            </div>
+            <div id="graph-container-minute" class="span6"></div>
+            <div id="graph-container-hour" class="span6"></div>
           </div>
           <div class="row-fluid">
-            <div id="graph-container-day" class="span6">
-              <h3>Day</h3>
-              <div class="graph" id="graph-day"/>
-              <div class="y-axis" id="y-axis-day"/>
-            </div>
-            <div id="graph-container-week" class="span6">
-              <h3>Week</h3>
-              <div class="graph" id="graph-day"/>
-              <div class="y-axis" id="y-axis-day"/>
-            </div>
+            <div id="graph-container-day" class="span6"></div>
+            <div id="graph-container-week" class="span6"></div>
           </div>
         </div>
       </div>
