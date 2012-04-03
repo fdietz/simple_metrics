@@ -12,7 +12,7 @@ SimpleMetrics::DataPointRepository.ensure_collections_exist
 
 bucket = SimpleMetrics::Bucket.first
 
-name = "test.page.visits.1"
+name = ENV['NAME'] || "test.page.visits.1"
 now = Time.now.to_i
 minute = 60
 hour   = minute * 60
