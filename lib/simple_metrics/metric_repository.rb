@@ -38,19 +38,7 @@ module SimpleMetrics
       private
 
       def collection
-        @@collection ||= db.collection('metrics')
-      end
-
-      def connection
-        @@connection ||= ::Mongo::Connection.new(db_config[:host], db_config[:port])
-      end
-
-      def db
-        @@db ||= connection.db(SimpleMetrics.db_name, SimpleMetrics.mongodb_options)
-      end
-
-      def db_config
-        SimpleMetrics.db_config
+        Repository.db.collection('metrics')
       end
 
       def metric(result)

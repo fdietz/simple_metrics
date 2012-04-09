@@ -11,27 +11,6 @@ SimpleMetrics is written in Ruby and packaged as a gem.
 
 The current version is considered ALPHA.
 
-SimpleMetrics Client
---------------------
-
-Commandline client:
-
-Send a count of 5 for data point "module.test1":
-
-    simple_metrics_client module.test1 -counter 5
-
-Send a timing of 100ms:
-
-    simple_metrics_client module.test1 -timing 100
-
-doing the same, but since we expect a lot of calls we sample the data (10%):
-
-    simple_metrics_client module.test1 -timing 100 --sample_rate 0.1
-
-more info:
-  
-    simple_metrics_client --help
-
 SimpleMetrics Server
 --------------------
 

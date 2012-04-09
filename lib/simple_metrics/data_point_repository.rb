@@ -16,52 +16,44 @@ module SimpleMetrics
         @@collection[name] ||= db.collection(name)
       end
 
-      def connection
-        @@connection ||= ::Mongo::Connection.new(db_config[:host], db_config[:port])
-      end
-
-      def db
-        @@db ||= connection.db(SimpleMetrics.db_name, SimpleMetrics.mongodb_options)
-      end
-
-      def db_config
-        SimpleMetrics.db_config
-      end
-
       def ensure_collections_exist
         SimpleMetrics.logger.debug "SERVER: MongoDB - found following collections: #{db.collection_names.inspect}"
-        retentions.each do |retention|
-          unless db.collection_names.include?(retention[:name])
-            db.create_collection(retention[:name], :capped => retention[:capped], :size => retention[:size]) 
-            SimpleMetrics.logger.debug "SERVER: MongoDB - created collection #{retention[:name]}, capped: #{retention[:capped]}, size: #{retention[:size]}"
+        buckets.each do |retention|
+          unless db.collection_names.include?(retention['name'])
+            db.create_collection(retention['name'], :capped => retention['capped'], :size => retention['size']) 
+            SimpleMetrics.logger.debug "SERVER: MongoDB - created collection #{retention['name']}, capped: #{retention['capped']}, size: #{retention['size']}"
           end
           
-          db.collection(retention[:name]).ensure_index([['ts', ::Mongo::ASCENDING]])
-          SimpleMetrics.logger.debug "SERVER: MongoDB - ensure index on column ts for collection #{retention[:name]}"
+          db.collection(retention['name']).ensure_index([['ts', ::Mongo::ASCENDING]])
+          SimpleMetrics.logger.debug "SERVER: MongoDB - ensure index on column ts for collection #{retention['name']}"
         end 
       end
 
       def truncate_collections
-        retentions.each do |retention|
-          if db.collection_names.include?(retention[:name])
-            if retention[:capped]
-              collection(retention[:name]).drop # capped collections can't remove elements, drop it instead
+        buckets.each do |retention|
+          if db.collection_names.include?(retention['name'])
+            if retention['capped']
+              collection(retention['name']).drop # capped collections can't remove elements, drop it instead
             else
-              collection(retention[:name]).remove
+              collection(retention['name']).remove
             end
-            SimpleMetrics.logger.debug "SERVER: MongoDB - truncated collection #{retention[:name]}"
+            SimpleMetrics.logger.debug "SERVER: MongoDB - truncated collection #{retention['name']}"
           end
         end
       end
 
       private
 
-      def retention_names
-        retentions.map { |r| r[:name] }
+      def db
+        Repository.db
       end
 
-      def retentions
-        @@buckets_config ||= SimpleMetrics.buckets_config
+      def retention_names
+        buckets.map { |r| r['name'] }
+      end
+
+      def buckets
+        SimpleMetrics.config.buckets
       end
     end
 

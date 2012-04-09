@@ -1,6 +1,10 @@
 # encoding: utf-8
 require "eventmachine"
 
+if defined? Encoding
+  Encoding.default_external = Encoding::UTF_8
+end
+
 module SimpleMetrics
 
   module ClientHandler
@@ -28,7 +32,7 @@ module SimpleMetrics
   class UDPServer
 
     def start
-      SimpleMetrics.logger.info "SERVER: starting up on #{SimpleMetrics.config[:host]}:#{SimpleMetrics.config[:port]}..."
+      SimpleMetrics.logger.info "SERVER: starting up on #{host}:#{port}..."
 
       trap('TERM') { stop }
       trap('INT')  { stop }
@@ -36,9 +40,9 @@ module SimpleMetrics
       DataPointRepository.ensure_collections_exist
 
       EM.run do
-        EM.open_datagram_socket(SimpleMetrics.config[:host], SimpleMetrics.config[:port], SimpleMetrics::ClientHandler) do |con|
-          EventMachine::add_periodic_timer(SimpleMetrics.config[:flush_interval]) do
-            SimpleMetrics.logger.debug "SERVER: period timer triggered after #{SimpleMetrics.config[:flush_interval]} seconds"
+        EM.open_datagram_socket(host, port, SimpleMetrics::ClientHandler) do |con|
+          EventMachine::add_periodic_timer(flush_interval) do
+            SimpleMetrics.logger.debug "SERVER: period timer triggered after #{flush_interval} seconds"
 
             EM.defer { Bucket.flush_raw_data(ClientHandler.get_and_clear_data) } 
           end
@@ -52,7 +56,25 @@ module SimpleMetrics
     end
     
     def to_s
-      "#{SimpleMetrics.config[:host]}:#{SimpleMetrics.config[:port]}"
+      "#{host}:#{port}"
+    end
+
+    private
+
+    def host
+      config['host'] || 'localhost'
+    end
+
+    def port 
+      config['port'] || 8125
+    end
+
+    def flush_interval
+      config['flush_interval'] || 10
+    end
+
+    def config
+      SimpleMetrics.config.server
     end
 
   end

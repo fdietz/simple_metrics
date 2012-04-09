@@ -5,7 +5,7 @@ module SimpleMetrics
     class << self
 
       def all
-        @@all ||= SimpleMetrics.buckets_config.map { |r| Bucket.new(r) }
+        @@all ||= SimpleMetrics.config.buckets.map { |r| Bucket.new(r) }
       end
 
       def first
@@ -81,10 +81,10 @@ module SimpleMetrics
     attr_reader :name, :capped
 
     def initialize(attributes)
-      @name    = attributes[:name]
-      @seconds = attributes[:seconds]
-      @capped  = attributes[:capped]
-      @size    = attributes[:size]
+      @name    = attributes['name']
+      @seconds = attributes['seconds']
+      @capped  = attributes['capped']
+      @size    = attributes['size']
     end
 
     def seconds

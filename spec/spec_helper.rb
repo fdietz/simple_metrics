@@ -5,6 +5,6 @@ RSpec.configure do |config|
 end
 
 SimpleMetrics.logger = Logger.new('/dev/null')
-SimpleMetrics.db_config = { :host => 'localhost', :prefix => 'test' }
-
-
+SimpleMetrics.configure do |config|
+  config.db = { 'host' => 'localhost', 'prefix' => 'test', 'options' => {} }
+end
