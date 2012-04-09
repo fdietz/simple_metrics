@@ -2,7 +2,6 @@
 require "logger"
 
 require "simple_metrics/version"
-require "simple_metrics/client"
 require "simple_metrics/udp_server"
 require "simple_metrics/data_point_repository"
 require "simple_metrics/data_point"
