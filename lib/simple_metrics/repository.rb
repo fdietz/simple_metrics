@@ -7,7 +7,7 @@ module SimpleMetrics
     end
 
     def db
-      @@db ||= connection.db(db_name, config['options'])
+      @@db ||= connection.db(db_name, config.fetch(:options))
     end
 
     def db_name
@@ -15,15 +15,15 @@ module SimpleMetrics
     end
 
     def prefix
-      config['prefix'] || 'development'
+      config[:prefix] || 'development'
     end
     
     def host
-      config['host'] || 'localhost'
+      config[:host] || 'localhost'
     end
 
     def port
-      config['port'] || 27017
+      config[:port] || 27017
     end
 
     def config

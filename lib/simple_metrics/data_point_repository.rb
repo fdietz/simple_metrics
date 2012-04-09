@@ -19,25 +19,25 @@ module SimpleMetrics
       def ensure_collections_exist
         SimpleMetrics.logger.debug "SERVER: MongoDB - found following collections: #{db.collection_names.inspect}"
         buckets.each do |retention|
-          unless db.collection_names.include?(retention['name'])
-            db.create_collection(retention['name'], :capped => retention['capped'], :size => retention['size']) 
-            SimpleMetrics.logger.debug "SERVER: MongoDB - created collection #{retention['name']}, capped: #{retention['capped']}, size: #{retention['size']}"
+          unless db.collection_names.include?(retention.fetch(:name))
+            db.create_collection(retention.fetch(:name), :capped => retention.fetch(:capped), :size => retention.fetch(:size)) 
+            SimpleMetrics.logger.debug "SERVER: MongoDB - created collection #{retention.fetch(:name)}, capped: #{retention.fetch(:capped)}, size: #{retention.fetch(:size)}"
           end
           
-          db.collection(retention['name']).ensure_index([['ts', ::Mongo::ASCENDING]])
-          SimpleMetrics.logger.debug "SERVER: MongoDB - ensure index on column ts for collection #{retention['name']}"
+          db.collection(retention.fetch(:name)).ensure_index([['ts', ::Mongo::ASCENDING]])
+          SimpleMetrics.logger.debug "SERVER: MongoDB - ensure index on column ts for collection #{retention.fetch(:name)}"
         end 
       end
 
       def truncate_collections
         buckets.each do |retention|
-          if db.collection_names.include?(retention['name'])
-            if retention['capped']
-              collection(retention['name']).drop # capped collections can't remove elements, drop it instead
+          if db.collection_names.include?(retention.fetch(:name))
+            if retention.fetch(:capped)
+              collection(retention.fetch(:name)).drop # capped collections can't remove elements, drop it instead
             else
-              collection(retention['name']).remove
+              collection(retention.fetch(:name)).remove
             end
-            SimpleMetrics.logger.debug "SERVER: MongoDB - truncated collection #{retention['name']}"
+            SimpleMetrics.logger.debug "SERVER: MongoDB - truncated collection #{retention.fetch(:name)}"
           end
         end
       end
@@ -49,7 +49,7 @@ module SimpleMetrics
       end
 
       def retention_names
-        buckets.map { |r| r['name'] }
+        buckets.map { |r| r.fetch(:name) }
       end
 
       def buckets

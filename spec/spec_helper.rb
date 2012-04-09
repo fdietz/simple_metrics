@@ -6,5 +6,5 @@ end
 
 SimpleMetrics.logger = Logger.new('/dev/null')
 SimpleMetrics.configure do |config|
-  config.db = { 'host' => 'localhost', 'prefix' => 'test', 'options' => {} }
+  config.db = { :host => 'localhost', :prefix => 'test', :options => {} }
 end

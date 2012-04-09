@@ -39,7 +39,7 @@ module SimpleMetrics
         data_points.group_by { |dp| dp.name }.each_pair do |name,dps|
           dp = ValueAggregation.aggregate(dps)
           bucket.save(dp, ts)
-          update_metric(dp)
+          update_metric(dp, dps.size)
           aggregate(dp)  
         end
       end
@@ -60,12 +60,12 @@ module SimpleMetrics
 
       private
 
-      def update_metric(dp)
+      def update_metric(dp, total)
         metric = MetricRepository.find_one_by_name(dp.name)
         if metric
-          MetricRepository.update(Metric.new(:name => dp.name, :total => metric.total + 1))
+          MetricRepository.update(Metric.new(:name => dp.name, :total => metric.total + total))
         else
-          MetricRepository.save(Metric.new(:name => dp.name, :total => 1))
+          MetricRepository.save(Metric.new(:name => dp.name, :total => total))
         end
       end
 
@@ -81,10 +81,10 @@ module SimpleMetrics
     attr_reader :name, :capped
 
     def initialize(attributes)
-      @name    = attributes['name']
-      @seconds = attributes['seconds']
-      @capped  = attributes['capped']
-      @size    = attributes['size']
+      @name    = attributes.fetch(:name)
+      @seconds = attributes.fetch(:seconds)
+      @capped  = attributes.fetch(:capped)
+      @size    = attributes.fetch(:size)
     end
 
     def seconds
