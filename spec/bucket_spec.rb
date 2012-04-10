@@ -198,7 +198,8 @@ module SimpleMetrics
       before do
         DataPointRepository.truncate_collections
         DataPointRepository.ensure_collections_exist
-        
+        MetricRepository.truncate_collections
+
         stats1 = DataPoint.create_counter(:name => "key1", :value => 5)
         stats2 = DataPoint.create_counter(:name => "key1", :value => 7)
         stats3 = DataPoint.create_counter(:name => "key2", :value => 3)
@@ -227,6 +228,16 @@ module SimpleMetrics
         stats4 = DataPoint.create_gauge(:name => "key1", :value => 3)
         input = @stats + [stats4]
         expect { Bucket.flush_data_points(input) }.to raise_error(SimpleMetrics::DataPoint::NonMatchingTypesError)
+      end
+
+      it "increments metrics counter" do
+        Bucket.flush_data_points(@stats)
+        key1 = MetricRepository.find_one_by_name("key1")
+        key1.name.should == "key1"
+        key1.total.should == 2
+        key2 = MetricRepository.find_one_by_name("key2")
+        key2.name.should == "key2"
+        key2.total.should == 1
       end
 
     end # describe "#flush_data_points"

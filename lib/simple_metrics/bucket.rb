@@ -63,7 +63,7 @@ module SimpleMetrics
       def update_metric(dp, total)
         metric = MetricRepository.find_one_by_name(dp.name)
         if metric
-          MetricRepository.update(Metric.new(:name => dp.name, :total => metric.total + total))
+          MetricRepository.update(Metric.new(:id => metric.id, :name => dp.name, :total => metric.total + total))
         else
           MetricRepository.save(Metric.new(:name => dp.name, :total => total))
         end
