@@ -52,28 +52,6 @@ module SimpleMetrics
       erb :index
     end
 
-    # get "/metrics" do
-    #   erb :index
-    # end
-
-    # get "/metrics/:id" do
-    #   erb :index
-    # end
-
-    # get "/metric" do
-    #   @from = (params[:from]  || Time.now).to_i
-    #   erb :show
-    # end
-
-    # get "/graph" do
-    #   @from    = (params[:from]  || Time.now).to_i
-    #   @time    = params[:time]   || 'minute'
-    #   @targets = params[:target]
-    #   @data_points = prepare_data_points(@from, @time, *@targets)
-    #   @series = @data_points
-    #   erb :graph, :layout => false
-    # end
-
     private
 
     # params[:id]
