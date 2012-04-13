@@ -93,24 +93,16 @@ module SimpleMetrics
       @capped == true
     end
 
-    # TODO refactor, move to graph.rb ?
     def fill_gaps(from, to, query_result)
       return query_result if query_result.nil? || query_result.size == 0
       
-      tmp_hash = DataPoint.ts_hash(query_result)
+      existing_ts_entries =  query_result.inject({}) { |result, dp| result[dp.ts] = dp; result }
       dp_template = query_result.first
 
       result = []
-      each_ts(from, to) do |current_bucket_ts|
-        result <<  
-          if tmp_hash.key?(current_bucket_ts)
-            tmp_hash[current_bucket_ts]
-          else
-            dp       = dp_template.dup
-            dp.value = nil
-            dp.ts    = current_bucket_ts
-            dp
-          end
+      each_ts(from, to) do |ts_bucket|
+        dp = existing_ts_entries[ts_bucket] || DataPoint::Base.new(:name => dp_template.name, :ts => ts_bucket)
+        result << dp
       end
       result
     end
@@ -122,10 +114,10 @@ module SimpleMetrics
     end
 
     def each_ts(from, to)
-      current_bucket_ts = ts_bucket(from)
-      while (current_bucket_ts <= ts_bucket(to))
-        yield(current_bucket_ts)
-        current_bucket_ts = current_bucket_ts + seconds
+      ts_bucket = ts_bucket(from)
+      while (ts_bucket <= ts_bucket(to))
+        yield(ts_bucket)
+        ts_bucket = ts_bucket + seconds
       end
     end
 

@@ -37,10 +37,6 @@ module SimpleMetrics
         raise UnknownTypeError, "Unknown Type Error: #{attributes[:type]}"
       end
     end
-
-    def ts_hash(query_result)
-      query_result.inject({}) { |result, dp| result[dp.ts] = dp; result }
-    end
     
   end
 end
