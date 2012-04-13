@@ -7,6 +7,9 @@ module SimpleMetrics
         @type = 'ms'
       end
 
+      def combine(dp)
+        raise "Implement me!"
+      end
     end
   end
 end

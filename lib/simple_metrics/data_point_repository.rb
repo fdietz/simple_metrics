@@ -79,11 +79,6 @@ module SimpleMetrics
       data_point(result) if result
     end
 
-    def find_all_in_ts_range(from, to)
-      results = @collection.find(range_query(from, to)).to_a
-      data_points(results)
-    end
-
     def find_all_in_ts_range_by_name(from, to, name)
       results = @collection.find({ :name => name }.merge(range_query(from, to))).to_a
       data_points(results)
@@ -92,18 +87,6 @@ module SimpleMetrics
     def find_all_in_ts_range_by_wildcard(from, to, target)
       results = @collection.find({ :name => regexp(target) }.merge(range_query(from, to))).to_a
       data_points(results)
-    end
-
-    def count_at(ts)
-      @collection.find({ :ts => ts }).count
-    end
-
-    def count_for_name_at(ts, name)
-      @collection.find({ :ts => ts, :name => name }).count
-    end
-
-    def find_all_distinct_names
-      @collection.distinct(:name).to_a
     end
 
     private

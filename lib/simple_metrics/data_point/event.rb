@@ -7,6 +7,10 @@ module SimpleMetrics
         @type = 'ev'
       end
 
+      def combine(dp)
+        raise "Implement me!"
+      end
+      
     end
   end
 end

@@ -21,7 +21,7 @@ def create_dps(name)
   previous_value = 20
   (1..1).inject([]) do |result, index|
     value = previous_value+rand(20)
-    result << SimpleMetrics::DataPoint.create_counter(:name => name, :value => value)
+    result << SimpleMetrics::DataPoint::Counter.new(:name => name, :value => value)
     previous_value = value
     result
   end
@@ -32,7 +32,7 @@ current = now - 1 * hour
 while (current < now)
   dps = create_dps(name)
   puts "flush data for #{Time.at(current)}, #{counter}"
-  SimpleMetrics::Bucket.flush_data_points(dps, current)
+  SimpleMetrics::Importer.flush_data_points(dps, current)
   current += 10
   counter += 1
 end

@@ -26,7 +26,7 @@ module SimpleMetrics
     def build(attributes)
       case attributes[:type]
       when 'c'
-        DataPoint.create_counter(attributes)
+        Counter.new(attributes)
       when 'g'
         Gauge.new(attributes) 
       when 'ms'
@@ -36,18 +36,6 @@ module SimpleMetrics
       else
         raise UnknownTypeError, "Unknown Type Error: #{attributes[:type]}"
       end
-    end
-
-    def create_counter(attributes)
-      Counter.new(attributes)
-    end
-
-    def create_gauge(attributes)
-      Gauge.new(attributes) 
-    end
-
-    def create_timing(attributes)
-      Timing.new(attributes)
     end
 
     def ts_hash(query_result)

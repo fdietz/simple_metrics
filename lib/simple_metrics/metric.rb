@@ -1,7 +1,8 @@
 module SimpleMetrics
   class Metric
 
-    attr_reader :id, :name, :total, :created_at, :updated_at
+    attr_reader :id, :name, :created_at, :updated_at
+    attr_accessor :total
 
     def initialize(attributes)
       @id          = attributes[:id]
