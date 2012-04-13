@@ -34,7 +34,7 @@ module SimpleMetrics
     def query(bucket, from, to, target)
       if wild_card_query?(target)
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
-        result = ArrayAggregation.aggregate(result, target)
+        result = aggregate(result, target)
         bucket.fill_gaps(from, to, result)
       elsif target.is_a?(String)
         result = bucket.find_all_in_ts_range_by_name(from, to, target)
@@ -45,6 +45,31 @@ module SimpleMetrics
     end
 
     private 
+
+    def aggregate(dps, target)
+      raise SimpleMetrics::DataPoint::NonMatchingTypesError if has_non_matching_types?(dps)
+
+      tmp = {}
+      dps.each do |dp|
+        dp.name = target
+        if tmp.key?(dp.ts)
+          tmp[dp.ts] << dp
+        else
+          tmp[dp.ts] = [dp]
+        end
+      end
+      tmp
+
+      result = []
+      tmp.each_pair do |ts, dps|
+        result << DataPoint.aggregate_values(dps)
+      end
+      result
+    end
+
+    def has_non_matching_types?(dps)
+      dps.group_by { |dp| dp.type }.size != 1
+    end
 
     def one_minute
       60

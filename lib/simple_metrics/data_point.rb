@@ -38,5 +38,33 @@ module SimpleMetrics
       end
     end
     
+    def aggregate_values(dps)
+      raise SimpleMetrics::DataPoint::NonMatchingTypesError if has_non_matching_types?(dps)
+
+      dp       = dps.first.dup
+      dp.value = if dp.counter?
+        sum(dps)
+      elsif dp.gauge?
+        sum(dps) / dps.size
+      elsif dp.event?
+        raise "Implement me!"
+      elsif dp.timing?
+        raise "Implement me!"
+      else
+        raise ArgumentError("Unknown data point type: #{dp}")
+      end
+      dp
+    end
+
+    private
+
+    def sum(dps)
+      dps.map { |dp| dp.value }.inject(0) { |result, value| result += value }
+    end
+
+    def has_non_matching_types?(dps)
+      dps.group_by { |dp| dp.type }.size != 1
+    end
+
   end
 end

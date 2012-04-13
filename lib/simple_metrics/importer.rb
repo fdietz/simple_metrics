@@ -22,7 +22,7 @@ module SimpleMetrics
       bucket = Bucket.first
 
       group_by_name(data_points) do |name, dps|
-        dp = aggregate_values(dps)
+        dp = DataPoint.aggregate_values(dps)
         bucket.save(dp, ts)
         update_metric(dp, dps.size)
         aggregate_coarse_buckets(dp)  
@@ -45,32 +45,6 @@ module SimpleMetrics
       dps.group_by { |dp| dp.name }.each_pair do |name,dps|
         block.call(name, dps)
       end
-    end
-
-    def aggregate_values(dps)
-      raise SimpleMetrics::DataPoint::NonMatchingTypesError if has_non_matching_types?(dps)
-
-      dp       = dps.first.dup
-      dp.value = if dp.counter?
-        sum(dps) / dps.size
-      elsif dp.gauge?
-        sum(dps)
-      elsif dp.event?
-        raise "Implement me!"
-      elsif dp.timing?
-        raise "Implement me!"
-      else
-        raise ArgumentError("Unknown data point type: #{dp}")
-      end
-      dp
-    end
-
-    def sum(dps)
-      dps.map { |dp| dp.value }.inject(0) { |result, value| result += value }
-    end
-
-    def has_non_matching_types?(dps)
-      dps.group_by { |dp| dp.type }.size != 1
     end
 
     def update_metric(dp, total)
