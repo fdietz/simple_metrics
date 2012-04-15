@@ -13,7 +13,7 @@ module SimpleMetrics
       end
 
       def find_all
-        results = collection.find.to_a
+        results = collection.find.sort([['name', ::Mongo::ASCENDING]]).to_a
         metrics(results) if results
       end
 
