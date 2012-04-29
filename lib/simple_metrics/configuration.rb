@@ -6,7 +6,7 @@ module SimpleMetrics
     attr_reader :config
 
     def initialize(hash = {}, &block)
-      @config = load_defaults.merge(symbolize_keys(hash))  
+      @config = load_defaults.merge(hash.symbolize_keys)  
     end
 
     def configure(hash = {}, &block)
@@ -25,7 +25,7 @@ module SimpleMetrics
     def buckets
       @buckets ||= begin
         tmp = config.fetch(:buckets)
-        tmp.map { |b| symbolize_keys(b)}
+        tmp.map { |b| b.symbolize_keys}
       end
     end
 
@@ -52,7 +52,7 @@ module SimpleMetrics
     private
 
     def load_defaults
-      @config = symbolize_keys(load_config)
+      @config = load_config.symbolize_keys
     rescue Errno::ENOENT # not found error
       logger.info "Creating initial config file: #{config_file}"
       FileUtils.cp(default_config_file, config_file)
@@ -73,21 +73,6 @@ module SimpleMetrics
       logger.error "Error parsing config file: #{e}"
     rescue IOError => e
       logger.error "Error reading config file: #{e}"
-    end
-
-    def symbolize_keys(hash)
-      hash.inject({}){|result, (key, value)|
-        new_key = case key
-                  when String then key.to_sym
-                  else key
-                  end
-        new_value = case value
-                    when Hash then symbolize_keys(value)
-                    else value
-                    end
-        result[new_key] = new_value
-        result
-      }
     end
 
     def logger

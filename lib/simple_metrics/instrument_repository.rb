@@ -22,7 +22,6 @@ module SimpleMetrics
       end
 
       def update(instrument)
-        #collection.update({ "_id" => instrument.id }, { "metrics" => instrument.metrics, "$set" => { :updated_at => Time.now.utc }})  
         collection.update({ "_id" => instrument.id }, "$set" => instrument.attributes.merge(:updated_at => Time.now.utc))
       end
 

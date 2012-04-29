@@ -70,10 +70,19 @@ module SimpleMetrics
     put "/api/instruments/:id" do
       content_type :json
 
-      attributes = JSON.parse(request.body.read.to_s)
+      attributes = JSON.parse(request.body.read.to_s).symbolize_keys
       instrument = SimpleMetrics::InstrumentRepository.find_one(params[:id])
-      instrument.metrics = attributes["metrics"]
+      instrument.metrics = attributes[:metrics]
+      instrument.name = attributes[:name]
       SimpleMetrics::InstrumentRepository.update(instrument)
+      201
+    end
+
+    post "/api/instruments" do
+      content_type :json
+
+      attributes = JSON.parse(request.body.read.to_s).symbolize_keys
+      SimpleMetrics::InstrumentRepository.save(Instrument.new(attributes))
       201
     end
 

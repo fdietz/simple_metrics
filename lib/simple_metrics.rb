@@ -1,5 +1,6 @@
 # encoding: utf-8
 require "logger"
+require "active_support/all"
 
 require "simple_metrics/version"
 require "simple_metrics/configuration"
