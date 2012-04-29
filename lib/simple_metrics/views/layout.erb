@@ -143,6 +143,8 @@
       </li>
     </ul>
 
+    <a href="/instruments/new" class="btn">Add Metric</a>
+
     <table class="table table-striped" style="font-size: 13px">
       <thead>
         <tr>
@@ -201,6 +203,15 @@
     {{/with}}
   </script>
 
+  <script id="instrument-details-header" type="text/x-handlebars-template">
+    {{#with instrument}}
+      <h1 id="instrument-name">{{name}}</h1>
+      <form id="instrument-name-form" class="form-inline" style="display: none">
+        <input value="{{name}}" id="instrument-name-input" type="text" class="input-xlarge focused" autocomplete="off">
+      </form>
+    {{/with}}
+  </script>
+
   <script id="instrument-details" type="text/x-handlebars-template">
     {{#with instrument}}
       <ul class="breadcrumb">
@@ -215,6 +226,8 @@
           <div id="instrument-sidebar-container" class="well"></div>
         </div>
         <div class="span9">
+          <div id="instrument-detail-header"></div>
+
           <button class="btn add-metric">Add Metric</button>
           <button class="btn save">Save</button>
 

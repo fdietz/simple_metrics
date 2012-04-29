@@ -6,7 +6,7 @@ module SimpleMetrics
     attr_reader :config
 
     def initialize(hash = {}, &block)
-      @config = load_defaults.merge(hash.symbolize_keys)  
+      @config = load_defaults.merge(hash.symbolize_keys)
     end
 
     def configure(hash = {}, &block)
@@ -15,7 +15,7 @@ module SimpleMetrics
     end
 
     def db
-      @db ||= config.fetch(:db)
+      @db ||= config.fetch(:db).symbolize_keys
     end
 
     def db=(db)
@@ -25,7 +25,7 @@ module SimpleMetrics
     def buckets
       @buckets ||= begin
         tmp = config.fetch(:buckets)
-        tmp.map { |b| b.symbolize_keys}
+        tmp.map { |b| b.symbolize_keys }
       end
     end
 
@@ -34,7 +34,7 @@ module SimpleMetrics
     end
 
     def server
-      @server ||= config.fetch(:server)
+      @server ||= config.fetch(:server).symbolize_keys
     end
 
     def server=(server)
@@ -42,7 +42,7 @@ module SimpleMetrics
     end
 
     def web
-      @web ||= config.fetch(:web)
+      @web ||= config.fetch(:web).symbolize_keys
     end
 
     def web=(web)
@@ -52,7 +52,7 @@ module SimpleMetrics
     private
 
     def load_defaults
-      @config = load_config.symbolize_keys
+      @config = load_config
     rescue Errno::ENOENT # not found error
       logger.info "Creating initial config file: #{config_file}"
       FileUtils.cp(default_config_file, config_file)
@@ -68,7 +68,7 @@ module SimpleMetrics
     end
 
     def load_config
-      YAML.load_file(config_file)  
+      YAML.load_file(config_file).symbolize_keys
     rescue ArgumentError => e
       logger.error "Error parsing config file: #{e}"
     rescue IOError => e
