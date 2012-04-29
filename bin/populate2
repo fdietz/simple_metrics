@@ -1,0 +1,52 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "bundler/setup"
+
+require 'optparse'
+require "simple_metrics"
+
+SimpleMetrics.logger = Logger.new("/dev/null")
+SimpleMetrics::DataPointRepository.truncate_collections
+SimpleMetrics::DataPointRepository.ensure_collections_exist
+SimpleMetrics::MetricRepository.truncate_collections
+
+def create_dps(name)
+  previous_value = 20
+  (1..1).inject([]) do |result, index|
+    value = previous_value+rand(20)
+    result << SimpleMetrics::DataPoint::Counter.new(:name => name, :value => value)
+    previous_value = value
+    result
+  end
+end
+
+def flush_data_points(name)
+  #bucket = SimpleMetrics::Bucket.first
+  now = Time.now.to_i
+  minute = 60
+  hour   = minute * 60
+
+  counter = 1
+  current = now - 1 * hour
+  while (current < now)
+    dps = create_dps(name)
+    puts "flush data for #{Time.at(current)}, #{counter}"
+    SimpleMetrics::Importer.flush_data_points(dps, current)
+    current += 10
+    counter += 1
+  end
+end
+
+name1 =  "test.page.visits"
+flush_data_points(name1)
+name2 =  "test.invoices.send"
+flush_data_points(name2)
+
+SimpleMetrics::InstrumentRepository.truncate_collections
+SimpleMetrics::InstrumentRepository.save(SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => name1 }, { :name => name2 }]))
+SimpleMetrics::InstrumentRepository.save(SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => name1 }]))
+
+SimpleMetrics::DashboardRepository.truncate_collections
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1"))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2"))

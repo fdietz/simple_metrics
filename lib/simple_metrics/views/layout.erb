@@ -163,20 +163,8 @@
     </table>
   </script>
 
-  <script id="instrument-details" type="text/x-handlebars-template">
+  <script id="instrument-details-table" type="text/x-handlebars-template">
     {{#with instrument}}
-      <ul class="breadcrumb">
-        <li>
-          <a href="/instruments">Instruments</a> <span class="divider">/</span>
-        </li>
-        <li class="active">{{name}}</li>
-      </ul>
-
-      <button class="btn add-metric">Add Metric</button>
-      <button class="btn save">Save</button>
-
-      <div id="graph-container" class="span12"></div>
-
       <table class="table table-striped" style="font-size: 13px">
         <thead>
           <tr>
@@ -198,7 +186,43 @@
         </tbody>
       </table>
     {{/with}}
+  </script>
 
+  <script id="instrument-details-sidebar" type="text/x-handlebars-template">
+    {{#with instrument}}
+      <ul class="nav">
+        <li>
+          Option 1
+        </li>
+        <li>
+          Option 2
+        </li>
+      </ul>
+    {{/with}}
+  </script>
+
+  <script id="instrument-details" type="text/x-handlebars-template">
+    {{#with instrument}}
+      <ul class="breadcrumb">
+        <li>
+          <a href="/instruments">Instruments</a> <span class="divider">/</span>
+        </li>
+        <li class="active">{{name}}</li>
+      </ul>
+
+      <div class="row-fluid">
+        <div class="span3">
+          <div id="instrument-sidebar-container" class="well"></div>
+        </div>
+        <div class="span9">
+          <button class="btn add-metric">Add Metric</button>
+          <button class="btn save">Save</button>
+
+          <div id="instrument-graph-container"></div>
+          <div id="instrument-table-container"></div>
+        </div>
+      </div>
+    {{/with}}
 
     <div class="modal" id="instrument-details-modal" style="display:none">
       <div class="modal-header">
