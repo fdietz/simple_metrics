@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rspec"
   s.add_development_dependency "rr"
   s.add_development_dependency "shotgun"
+  s.add_development_dependency "rack-test"
 
   s.add_dependency "eventmachine"
   s.add_dependency "daemons"

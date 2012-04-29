@@ -36,3 +36,11 @@ while (current < now)
   current += 10
   counter += 1
 end
+
+SimpleMetrics::InstrumentRepository.truncate_collections
+SimpleMetrics::InstrumentRepository.save(SimpleMetrics::Instrument.new(:name => "Example 1", :metrics => [{ :name => name}]))
+SimpleMetrics::InstrumentRepository.save(SimpleMetrics::Instrument.new(:name => "Example 2", :metrics => [{ :name => name}]))
+
+SimpleMetrics::DashboardRepository.truncate_collections
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example 1"))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example 2"))

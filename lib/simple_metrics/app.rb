@@ -2,6 +2,8 @@ require "sinatra"
 require "erubis"
 require "json"
 
+# ENV['RACK_ENV'] = 'development'
+
 if defined? Encoding
   Encoding.default_external = Encoding::UTF_8
 end
@@ -34,6 +36,44 @@ module SimpleMetrics
       targets = params[:targets]
       data_points = prepare_data_points(from, time, *targets)
       data_points.to_json
+    end
+
+    get "/api/dashboards" do
+      content_type :json
+
+      dashboards = SimpleMetrics::DashboardRepository.find_all
+      dashboards.inject([]) { |result, m| result << m.attributes }.to_json
+    end
+
+    get "/api/dashboards/:id" do
+      content_type :json
+
+      dashboard = SimpleMetrics::DashboardRepository.find_one(params[:id])
+      dashboard.attributes.to_json
+    end
+
+    get "/api/instruments" do
+      content_type :json
+
+      instruments = SimpleMetrics::InstrumentRepository.find_all
+      instruments.inject([]) { |result, m| result << m.attributes }.to_json
+    end
+
+    get "/api/instruments/:id" do
+      content_type :json
+
+      instrument = SimpleMetrics::InstrumentRepository.find_one(params[:id])
+      instrument.attributes.to_json
+    end
+
+    put "/api/instruments/:id" do
+      content_type :json
+
+      attributes = JSON.parse(request.body.read.to_s)
+      instrument = SimpleMetrics::InstrumentRepository.find_one(params[:id])
+      instrument.metrics = attributes["metrics"]
+      SimpleMetrics::InstrumentRepository.update(instrument)
+      201
     end
 
     get "/*" do
