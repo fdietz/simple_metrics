@@ -16,13 +16,14 @@ module SimpleMetrics
     set :assets_prefix, '/assets'
     set :digest_assets, false
 
-    set :views, ::File.expand_path('../views', __FILE__)  
-    set :public_folder, File.expand_path('../public', __FILE__)
+    set :views, ::File.expand_path('../../../views', __FILE__)  
+    set :public_folder, File.expand_path('../../../public', __FILE__)
+    set :assets_folder, File.expand_path('../../../assets', __FILE__)
 
     configure do
-      sprockets.append_path File.join(root, 'assets', 'stylesheets')
-      sprockets.append_path File.join(root, 'assets', 'javascripts')
-      sprockets.append_path File.join(root, 'assets', 'images')
+      sprockets.append_path File.join(assets_folder, 'stylesheets')
+      sprockets.append_path File.join(assets_folder, 'javascripts')
+      sprockets.append_path File.join(assets_folder, 'images')
 
       Sprockets::Helpers.configure do |config|
         config.environment = sprockets

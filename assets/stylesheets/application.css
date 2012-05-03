@@ -1,2 +1,5 @@
-//= require bootstrap.min
-//= require_tree .
+//= require ./lib/bootstrap.min
+//= require ./lib/bootstrap-responsive.min
+//= require ./lib/rickshaw.min
+
+//= require ./graph

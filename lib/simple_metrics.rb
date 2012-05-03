@@ -23,7 +23,6 @@ require "simple_metrics/instrument"
 require "simple_metrics/instrument_repository"
 require "simple_metrics/dashboard"
 require "simple_metrics/dashboard_repository"
-require "simple_metrics/app"
 
 module SimpleMetrics
   extend self
