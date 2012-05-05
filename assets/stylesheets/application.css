@@ -1,5 +1,5 @@
-//= require ./lib/bootstrap.min
-//= require ./lib/bootstrap-responsive.min
-//= require ./lib/rickshaw.min
+//= require ./vendor/bootstrap.min
+//= require ./vendor/bootstrap-responsive.min
+//= require ./vendor/rickshaw.min
 
 //= require ./graph

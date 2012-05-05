@@ -12,7 +12,16 @@ end
 
 module SimpleMetrics
   class App < Sinatra::Base
-    set :sprockets, Sprockets::Environment.new(root)
+
+    def self.prepare_sprockets
+      @sprockets ||= begin 
+        Sprockets::Environment.new(root) do |env|
+          env.logger = Logger.new(STDOUT)
+        end
+      end
+    end
+
+    set :sprockets, prepare_sprockets
     set :assets_prefix, '/assets'
     set :digest_assets, false
 
