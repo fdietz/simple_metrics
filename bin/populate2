@@ -49,6 +49,11 @@ instrument2 = SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :me
 SimpleMetrics::InstrumentRepository.save(instrument1)
 SimpleMetrics::InstrumentRepository.save(instrument2)
 
+10.times do |i|
+  instrument = SimpleMetrics::Instrument.new(:name => "Example Instrument Randmon #{i}", :metrics => [{ :name => name1 }])
+  SimpleMetrics::InstrumentRepository.save(instrument)
+end
+
 SimpleMetrics::DashboardRepository.truncate_collections
 SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1", :instruments => [{ :name => instrument1.name }, { :name => instrument2.name }]))
 SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2", :instruments => [{ :name => instrument1.name }]))
