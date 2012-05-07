@@ -29,10 +29,10 @@ Gem::Specification.new do |s|
   s.add_dependency "bson_ext", '~> 1.6'
   s.add_dependency "sinatra"
   s.add_dependency "erubis"
-  s.add_dependency "vegas", '~> 0.1.2'
+  # s.add_dependency "vegas", '~> 0.1.2'
   #s.add_dependency "json"
   s.add_dependency "activesupport"
-  s.add_dependency "sprockets",         "~> 2.0.2"
-  s.add_dependency "sprockets-helpers", "~> 0.4.0"
+  # s.add_dependency "sprockets",         "~> 2.0.2"
+  # s.add_dependency "sprockets-helpers", "~> 0.4.0"
   
 end

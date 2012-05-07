@@ -44,9 +44,11 @@ name2 =  "test.invoices.send"
 flush_data_points(name2)
 
 SimpleMetrics::InstrumentRepository.truncate_collections
-SimpleMetrics::InstrumentRepository.save(SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => name1 }, { :name => name2 }]))
-SimpleMetrics::InstrumentRepository.save(SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => name1 }]))
+instrument1 = SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => name1 }, { :name => name2 }])
+instrument2 = SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => name1 }])
+SimpleMetrics::InstrumentRepository.save(instrument1)
+SimpleMetrics::InstrumentRepository.save(instrument2)
 
 SimpleMetrics::DashboardRepository.truncate_collections
-SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1"))
-SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2"))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1", :instruments => [{ :name => instrument1.name }, { :name => instrument2.name }]))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2", :instruments => [{ :name => instrument1.name }]))

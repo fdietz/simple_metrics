@@ -22,7 +22,7 @@ module SimpleMetrics
       end
 
       def update(dashboard)
-        collection.update({ "_id" => dashboard.id }, { "$set" => { :updated_at => Time.now.utc }})  
+        collection.update({ "_id" => dashboard.id }, { "$set" => dashboard.attributes.merge(:updated_at => Time.now.utc) })  
       end
 
       def truncate_collections
@@ -42,7 +42,7 @@ module SimpleMetrics
       end
 
       def dashboard(result)
-        Dashboard.new(:id => result["_id"], :name => result["name"], :created_at => result["created_at"], :updated_at => result["updated_at"])
+        Dashboard.new(:id => result["_id"], :name => result["name"], :instruments => result["instruments"], :created_at => result["created_at"], :updated_at => result["updated_at"])
       end
 
       def dashboards(results)
