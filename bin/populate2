@@ -38,21 +38,25 @@ def flush_data_points(name)
   end
 end
 
+
 name1 =  "test.page.visits"
 flush_data_points(name1)
 name2 =  "test.invoices.send"
 flush_data_points(name2)
 
+metric1 = SimpleMetrics::MetricRepository.find_one_by_name(name1)
+metric2 = SimpleMetrics::MetricRepository.find_one_by_name(name2)
+
 SimpleMetrics::InstrumentRepository.truncate_collections
-instrument1 = SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => name1 }, { :name => name2 }])
-instrument2 = SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => name1 }])
+instrument1 = SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => metric1.name }, { :name => metric2.name}])
+instrument2 = SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => metric1.name} ])
 instrument1.id = SimpleMetrics::InstrumentRepository.save(instrument1)
 instrument2.id = SimpleMetrics::InstrumentRepository.save(instrument2)
 
 puts instrument1.inspect
 puts instrument2.inspect
 10.times do |i|
-  instrument = SimpleMetrics::Instrument.new(:name => "Example Instrument Randmon #{i}", :metrics => [{ :name => name1 }])
+  instrument = SimpleMetrics::Instrument.new(:name => "Example Instrument Randmon #{i}", :metrics => [{ :name => metric1.name}])
   SimpleMetrics::InstrumentRepository.save(instrument)
 end
 
