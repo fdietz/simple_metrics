@@ -46,14 +46,16 @@ flush_data_points(name2)
 SimpleMetrics::InstrumentRepository.truncate_collections
 instrument1 = SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => name1 }, { :name => name2 }])
 instrument2 = SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => name1 }])
-SimpleMetrics::InstrumentRepository.save(instrument1)
-SimpleMetrics::InstrumentRepository.save(instrument2)
+instrument1.id = SimpleMetrics::InstrumentRepository.save(instrument1)
+instrument2.id = SimpleMetrics::InstrumentRepository.save(instrument2)
 
+puts instrument1.inspect
+puts instrument2.inspect
 10.times do |i|
   instrument = SimpleMetrics::Instrument.new(:name => "Example Instrument Randmon #{i}", :metrics => [{ :name => name1 }])
   SimpleMetrics::InstrumentRepository.save(instrument)
 end
 
 SimpleMetrics::DashboardRepository.truncate_collections
-SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1", :instruments => [{ :name => instrument1.name }, { :name => instrument2.name }]))
-SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2", :instruments => [{ :name => instrument1.name }]))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1", :instruments => [instrument1.id.to_s, instrument2.id.to_s]))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2", :instruments => [instrument1.id.to_s]))

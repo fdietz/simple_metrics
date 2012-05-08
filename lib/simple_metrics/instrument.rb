@@ -1,8 +1,7 @@
 module SimpleMetrics
   class Instrument
 
-    attr_reader :id, :created_at, :updated_at
-    attr_accessor :name, :metrics
+    attr_accessor :id, :name, :metrics, :created_at, :updated_at
 
     def initialize(attributes)
       @id          = attributes[:id]

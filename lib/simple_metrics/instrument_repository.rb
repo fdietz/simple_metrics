@@ -18,7 +18,12 @@ module SimpleMetrics
       end
 
       def save(instrument)
-        collection.insert(instrument.attributes.merge(:created_at => Time.now.utc, :updated_at => Time.now.utc))
+        instrument.created_at = Time.now.utc
+        instrument.updated_at = Time.now.utc
+        attributes = instrument.attributes.reject { |key, value| key.to_s == "id" }
+        id = collection.insert(attributes)
+        instrument.id = id
+        id
       end
 
       def update(instrument)
