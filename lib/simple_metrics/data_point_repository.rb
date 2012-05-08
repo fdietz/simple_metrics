@@ -25,6 +25,7 @@ module SimpleMetrics
           end
           
           db.collection(retention.fetch(:name)).ensure_index([['ts', ::Mongo::ASCENDING]])
+          db.collection(retention.fetch(:name)).ensure_index([['_id', ::Mongo::ASCENDING]])
           SimpleMetrics.logger.debug "SERVER: MongoDB - ensure index on column ts for collection #{retention.fetch(:name)}"
         end 
       end
