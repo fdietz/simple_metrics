@@ -6,20 +6,33 @@ require "bundler/setup"
 require 'optparse'
 require "simple_metrics"
 
-ts = Time.now.to_i
+SimpleMetrics.logger = Logger.new("/dev/null")
+SimpleMetrics::DataPointRepository.truncate_collections
+SimpleMetrics::DataPointRepository.ensure_collections_exist
 
-name = "test.post.clicks2"
+bucket = SimpleMetrics::Bucket.first
 
-SimpleMetrics::Mongo.ensure_collections_exist
+name = ENV['NAME'] || "test.page.visits.1"
+now = Time.now.to_i
+minute = 60
+hour   = minute * 60
 
-SimpleMetrics::Bucket.all.each do |bucket|
-	ts_bucket = bucket.ts_bucket(ts)
+def create_dps(name)
+  previous_value = 20
+  (1..1).inject([]) do |result, index|
+    value = previous_value+rand(20)
+    result << SimpleMetrics::DataPoint::Counter.new(:name => name, :value => value)
+    previous_value = value
+    result
+  end
+end
 
-	previous_value = rand(300)
-	(1..100).each do |index|
-		ts = ts_bucket - (bucket.seconds*index)
-		value = previous_value+rand(20)
-		data_point = SimpleMetrics::DataPoint.create_counter(:name => name, :value => value)
-		bucket.save(data_point, ts)
-	end
+counter = 1
+current = now - 1 * hour
+while (current < now)
+  dps = create_dps(name)
+  puts "flush data for #{Time.at(current)}, #{counter}"
+  SimpleMetrics::Importer.flush_data_points(dps, current)
+  current += 10
+  counter += 1
 end

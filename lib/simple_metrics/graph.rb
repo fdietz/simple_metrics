@@ -1,58 +1,95 @@
 module SimpleMetrics
 
-  # 
-  # url format examples:
-  # * target=com.post.clicks (1 line in graph)
-  # * target=com.post.clicks.text&target=com.post.clicks.logo (2 lines in graph)
-  # * target=com.post.clicks.* (1 aggregated line in graph)
-  #
   module Graph
     extend self
 
-    def minutes
-      Bucket[0]
-    end
+    def minutes; Bucket[0]; end
+    def hours;   Bucket[1]; end
+    def day;     Bucket[2]; end
+    def week;    Bucket[3]; end
 
-    def hours
-      Bucket[1]
-    end
-
-    def day
-      Bucket[2]
-    end
-
-    def week
-      Bucket[3]
-    end
-
-    def query_all(bucket, from, to, *targets)
-      result = {}
-      Array(targets).each do |target|
-        result[target.inspect] = values_only(query(bucket, from, to, target))
+    def time_range(time)
+      case time
+      when 'minute'
+        5 * one_minute
+      when 'hour'
+        one_hour
+      when 'day'
+        one_day
+      when 'week'
+        one_week
+      else 
+        raise "Unknown time param: #{time}"
       end
-      result
+    end
+    
+    def query_all(bucket, from, to, *targets)
+      results = []
+      Array(targets).each do |target|
+        results << { :name => target, :data => query(bucket, from, to, target).map { |data| { :x => data.ts, :y => data.value || 0 } } }
+      end
+      results
     end
 
     def query(bucket, from, to, target)
-      if target.is_a?(Regexp) 
-        result = bucket.find_all_in_ts_range_by_regexp(from, to, target)
-        result = DataPoint.aggregate_array(result, target.inspect)
-        bucket.fill_gaps(from, to, result)
-      elsif target.is_a?(String) && target.include?('*')
+      if wild_card_query?(target)
         result = bucket.find_all_in_ts_range_by_wildcard(from, to, target)
-        result = DataPoint.aggregate_array(result, target)
+        result = aggregate(result, target)
         bucket.fill_gaps(from, to, result)
       elsif target.is_a?(String)
         result = bucket.find_all_in_ts_range_by_name(from, to, target)
         bucket.fill_gaps(from, to, result) 
       else
-        raise ArgumentError, "Unknown target: #{target.inspect}"
+        raise ArgumentError, "Unknown target format: #{target.inspect}"
       end
     end
 
-    def values_only(data_point_array)
-      data_point_array.map { |data| { :ts => data.ts, :value => data.value } }
+    private 
+
+    def aggregate(dps, target)
+      raise SimpleMetrics::DataPoint::NonMatchingTypesError if has_non_matching_types?(dps)
+
+      tmp = {}
+      dps.each do |dp|
+        dp.name = target
+        if tmp.key?(dp.ts)
+          tmp[dp.ts] << dp
+        else
+          tmp[dp.ts] = [dp]
+        end
+      end
+      tmp
+
+      result = []
+      tmp.each_pair do |ts, dps|
+        result << DataPoint.aggregate_values(dps)
+      end
+      result
     end
 
+    def has_non_matching_types?(dps)
+      dps.group_by { |dp| dp.type }.size != 1
+    end
+
+    def one_minute
+      60
+    end
+
+    def one_hour
+      one_minute * 60
+    end
+
+    def one_day
+      one_hour * 24
+    end
+
+    def one_week
+      one_day * 7
+    end
+
+    def wild_card_query?(target)
+      target.is_a?(String) && target.include?('*')
+    end
+  
   end
 end

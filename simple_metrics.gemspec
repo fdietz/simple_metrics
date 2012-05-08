@@ -19,9 +19,13 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
   s.add_development_dependency "rr"
+  s.add_development_dependency "shotgun"
+  s.add_development_dependency "rack-test"
 
   s.add_dependency "eventmachine"
   s.add_dependency "daemons"
   s.add_dependency "mongo", '~> 1.6'
   s.add_dependency "bson", '~> 1.6'
+  s.add_dependency "bson_ext", '~> 1.6'
+  s.add_dependency "activesupport"
 end

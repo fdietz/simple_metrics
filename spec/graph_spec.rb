@@ -14,14 +14,14 @@ module SimpleMetrics
     end
 
   	before do
-  	  Mongo.truncate_collections
-  	  Mongo.ensure_collections_exist
+  	  DataPointRepository.truncate_collections
+  	  DataPointRepository.ensure_collections_exist
   	end
 
     describe "#query" do
 
       it "returns string request data points as is" do
-      	dp1 = DataPoint.create_counter(:name => "key1", :value => 5)
+      	dp1 = DataPoint::Counter.new(:name => "key1", :value => 5)
 
       	bucket.save(dp1, ts)
 
@@ -34,7 +34,7 @@ module SimpleMetrics
       end
 
       it "returns string request data points and fill graps" do
-        dp1 = DataPoint.create_counter(:name => "key1", :value => 5)
+        dp1 = DataPoint::Counter.new(:name => "key1", :value => 5)
 
         bucket.save(dp1, ts)
 
@@ -49,8 +49,8 @@ module SimpleMetrics
       end
 
       it "returns wildcard request data points with aggregate counter" do
-      	dp1 = DataPoint.create_counter(:name => "com.test.key1", :value => 5)
-      	dp2 = DataPoint.create_counter(:name => "com.test.key2", :value => 7)
+      	dp1 = DataPoint::Counter.new(:name => "com.test.key1", :value => 5)
+      	dp2 = DataPoint::Counter.new(:name => "com.test.key2", :value => 7)
 
       	bucket.save(dp1, ts)
       	bucket.save(dp2, ts)
@@ -66,24 +66,35 @@ module SimpleMetrics
       	result.should be_counter
       end
 
-      it "returns regexp request data points with aggregate gauge" do
-      	dp1 = DataPoint.create_gauge(:name => "com.test.key1", :value => 5)
-      	dp2 = DataPoint.create_gauge(:name => "com.test.key2", :value => 7)
+    end # descibe
 
-      	bucket.save(dp1, ts)
-      	bucket.save(dp2, ts)
+    describe "#query_all" do
+
+      it "returns request data points as is" do
+        dp1 = DataPoint::Counter.new(:name => "com.test.key1", :value => 5)
+        dp2 = DataPoint::Counter.new(:name => "com.test.key2", :value => 7)
+        dp3 = DataPoint::Counter.new(:name => "com.test.key2", :value => 3)
+        bucket.save(dp1, ts)
+        bucket.save(dp2, ts - 10)
+        bucket.save(dp3, ts)
 
         current_ts = bucket.ts_bucket(ts)
-        from = current_ts
+        from = current_ts - 10
         to   = current_ts
+        results = Graph.query_all(bucket, from, to, "com.test.key1", "com.test.key2")
+        key1 = results.first
+        key1[:name].should == "com.test.key1"
+        key1[:data].should have(2).entry
+        key1[:data].first[:y].should == 0
+        key1[:data].last[:y].should == 5
 
-      	results = Graph.query(bucket, from, to, /com\.test(.*)/)
-      	results.should have(1).data_point
-      	result = results.first
-      	result.name.should == "/com\\.test(.*)/"
-      	result.value.should == 6
-      	result.should be_gauge
+        key2 = results.last
+        key2[:name].should == "com.test.key2"
+        key2[:data].should have(2).entry
+        key2[:data].first[:y].should == 7
+        key2[:data].last[:y].should == 3
       end
+
     end
   end
 end

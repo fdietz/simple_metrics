@@ -54,78 +54,28 @@ module SimpleMetrics
       end
 
       it "parses increment timing with sample rate" do
+        # TODO
       end
-    end
-
+    end # describe
 
     describe "#aggregate" do
-      it "aggregates counter data points" do
-        stats1  =  DataPoint.create_counter(:name => "key1", :value => 5)
-        stats2  =  DataPoint.create_counter(:name => "key1", :value => 7)
-        result = DataPoint.aggregate([stats1, stats2])
-        result.value.should == 12
+
+      it "aggregate counters" do
+        key1 = DataPoint::Counter.new(:name => "key1", :value => 1)
+        key2 = DataPoint::Counter.new(:name => "key1", :value => 3)
+        result = DataPoint.aggregate_values([key1, key2])
         result.name.should == "key1"
-        result.should be_counter
+        result.value.should == 4
       end
 
-      it "aggregates counter data points with custom name" do
-        stats1  =  DataPoint.create_counter(:name => "key1", :value => 5)
-        stats2  =  DataPoint.create_counter(:name => "key1", :value => 7)
-        result = DataPoint.aggregate([stats1, stats2], "new_name")
-        result.value.should == 12
-        result.name.should == "new_name"
-        result.should be_counter
-      end
-
-      it "aggregates gauge data points" do
-        stats1  =  DataPoint.create_gauge(:name => "key1", :value => 5)
-        stats2  =  DataPoint.create_gauge(:name => "key1", :value => 7)
-        result = DataPoint.aggregate([stats1, stats2])
-        result.value.should == 6
+      it "aggregate gauges" do
+        key1 = DataPoint::Gauge.new(:name => "key1", :value => 1)
+        key2 = DataPoint::Gauge.new(:name => "key1", :value => 3)
+        result = DataPoint.aggregate_values([key1, key2])
         result.name.should == "key1"
-        result.should be_gauge
+        result.value.should == 2
       end
 
-      it "aggregates timing data points" do
-      end
-      
-      it "aggregates event data points" do
-      end
-    end
-
-     describe "#aggregate_array" do
-      it "aggregates counter data points" do
-        stats1  =  DataPoint.create_counter(:name => "com.test.key1", :value => 5, :ts => ts)
-        stats2  =  DataPoint.create_counter(:name => "com.test.key1", :value => 7, :ts => ts)
-        stats3  =  DataPoint.create_counter(:name => "com.test.key1", :value => 9, :ts => (ts + 60) )
-
-        results = DataPoint.aggregate_array([stats1, stats2, stats3], "com.test.*")
-        results.should have(2).data_points
-        results.first.name.should == "com.test.*"
-        results.last.name.should  == "com.test.*"
-        results.first.value.should == 12
-        results.last.value.should == 9
-      end
-
-      it "aggregates gauge data points" do
-        stats1  =  DataPoint.create_gauge(:name => "com.test.key1", :value => 5, :ts => ts)
-        stats2  =  DataPoint.create_gauge(:name => "com.test.key1", :value => 7, :ts => ts)
-        stats3  =  DataPoint.create_gauge(:name => "com.test.key1", :value => 9, :ts => (ts + 60) )
-
-        results = DataPoint.aggregate_array([stats1, stats2, stats3], "com.test.*")
-        results.should have(2).data_points
-        results.first.name.should == "com.test.*"
-        results.last.name.should  == "com.test.*"
-        results.first.value.should == 6
-        results.last.value.should == 9
-      end
-     
-      it "raises NonMatchingTypesError if types are different" do
-        stats1  =  DataPoint.create_counter(:name => "com.test.key1", :value => 5, :ts => ts)
-        stats2  =  DataPoint.create_gauge(:name => "com.test.key1", :value => 5, :ts => ts)
-        expect { DataPoint.aggregate_array([stats1, stats2], "com.test.*") }.to raise_error(SimpleMetrics::DataPoint::NonMatchingTypesError)
-      end
-    end
+    end # describe
   end
-
 end

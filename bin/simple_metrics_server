@@ -1,18 +1,19 @@
 #!/usr/bin/env ruby
 
+$LOAD_PATH.unshift File.expand_path(File.dirname(__FILE__) + '/../lib')
+
 require "rubygems"
-require "bundler/setup"
 require "simple_metrics"
 require "daemons"
 
 options = {
 	:backtrace  => true,
 	:log_output => true,
-	:dir_mode   => :script
+	:dir_mode   => :script,
 }
 
 Daemons.run_proc("simple_metrics", options) do
-	SimpleMetrics::Server.new.start
+	SimpleMetrics::UDPServer.new.start
 end
 
 

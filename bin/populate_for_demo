@@ -1,0 +1,65 @@
+#!/usr/bin/env ruby
+
+require "rubygems"
+require "bundler/setup"
+
+require 'optparse'
+require "simple_metrics"
+
+SimpleMetrics.logger = Logger.new("/dev/null")
+SimpleMetrics::DataPointRepository.truncate_collections
+SimpleMetrics::DataPointRepository.ensure_collections_exist
+SimpleMetrics::MetricRepository.truncate_collections
+
+def create_dps(name)
+  previous_value = 20
+  (1..1).inject([]) do |result, index|
+    value = previous_value+rand(20)
+    result << SimpleMetrics::DataPoint::Counter.new(:name => name, :value => value)
+    previous_value = value
+    result
+  end
+end
+
+def flush_data_points(name)
+  #bucket = SimpleMetrics::Bucket.first
+  now = Time.now.to_i
+  minute = 60
+  hour   = minute * 60
+
+  counter = 1
+  current = now - 1 * hour
+  while (current < now)
+    dps = create_dps(name)
+    puts "flush data for #{Time.at(current)}, #{counter}"
+    SimpleMetrics::Importer.flush_data_points(dps, current)
+    current += 10
+    counter += 1
+  end
+end
+
+
+name1 =  "test.page.visits"
+flush_data_points(name1)
+name2 =  "test.invoices.send"
+flush_data_points(name2)
+
+metric1 = SimpleMetrics::MetricRepository.find_one_by_name(name1)
+metric2 = SimpleMetrics::MetricRepository.find_one_by_name(name2)
+
+SimpleMetrics::InstrumentRepository.truncate_collections
+instrument1 = SimpleMetrics::Instrument.new(:name => "Example Instrument 1", :metrics => [{ :name => metric1.name }, { :name => metric2.name}])
+instrument2 = SimpleMetrics::Instrument.new(:name => "Example Instrument 2", :metrics => [{ :name => metric1.name} ])
+instrument1.id = SimpleMetrics::InstrumentRepository.save(instrument1)
+instrument2.id = SimpleMetrics::InstrumentRepository.save(instrument2)
+
+puts instrument1.inspect
+puts instrument2.inspect
+10.times do |i|
+  instrument = SimpleMetrics::Instrument.new(:name => "Example Instrument Randmon #{i}", :metrics => [{ :name => metric1.name}])
+  SimpleMetrics::InstrumentRepository.save(instrument)
+end
+
+SimpleMetrics::DashboardRepository.truncate_collections
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 1", :instruments => [instrument1.id.to_s, instrument2.id.to_s]))
+SimpleMetrics::DashboardRepository.save(SimpleMetrics::Dashboard.new(:name => "Example Dashboard 2", :instruments => [instrument1.id.to_s]))
