@@ -22,7 +22,11 @@ module SimpleMetrics
       end
 
       def update(dashboard)
-        collection.update({ "_id" => dashboard.id }, { "$set" => dashboard.attributes.merge(:updated_at => Time.now.utc) })  
+        collection.update({ "_id" => dashboard.id }, { "$set" => dashboard.attributes.merge(:updated_at => Time.now.utc).reject { |k, v| k == 'id' } })  
+      end
+
+      def remove(id)
+        collection.remove("_id" => BSON::ObjectId.from_string(id))
       end
 
       def truncate_collections

@@ -27,7 +27,11 @@ module SimpleMetrics
       end
 
       def update(instrument)
-        collection.update({ "_id" => instrument.id }, "$set" => instrument.attributes.merge(:updated_at => Time.now.utc))
+        collection.update({ "_id" => instrument.id }, "$set" => instrument.attributes.merge(:updated_at => Time.now.utc).reject { |k, v| k == 'id' })
+      end
+
+      def remove(id)
+        collection.remove("_id" => BSON::ObjectId.from_string(id))
       end
 
       def truncate_collections

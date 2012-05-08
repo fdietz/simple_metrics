@@ -63,7 +63,7 @@ module SimpleMetrics
     end
 
     def save(result)
-      @collection.insert(result.attributes)
+      @collection.insert(result.attributes.reject { |k, v| k == 'id' })
     end
 
     def update(dp, ts)
