@@ -51,7 +51,7 @@ module SimpleMetrics
       end
 
       def instrument(result)
-        Instrument.new(:id => result["_id"], :name => result["name"], :metrics => result["metrics"], :created_at => result["created_at"], :updated_at => result["updated_at"])
+        Instrument.new(:id => result["_id"], :renderer => result["renderer"], :name => result["name"], :metrics => result["metrics"], :created_at => result["created_at"], :updated_at => result["updated_at"])
       end
 
       def instruments(results)
