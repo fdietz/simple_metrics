@@ -44,7 +44,7 @@ module SimpleMetrics
           EventMachine::add_periodic_timer(flush_interval) do
             SimpleMetrics.logger.debug "SERVER: period timer triggered after #{flush_interval} seconds"
 
-            EM.defer { Bucket.flush_raw(ClientHandler.get_and_clear_data) } 
+            EM.defer { SimpleMetrics::Importer.flush_raw(ClientHandler.get_and_clear_data) } 
           end
         end
       end
