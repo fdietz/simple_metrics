@@ -62,15 +62,15 @@ module SimpleMetrics
     private
 
     def host
-      config['host'] || 'localhost'
+      config[:host] || 'localhost'
     end
 
     def port 
-      config['port'] || 8125
+      config[:port] || 8125
     end
 
     def flush_interval
-      config['flush_interval'] || 10
+      config[:flush_interval] || 10
     end
 
     def config
