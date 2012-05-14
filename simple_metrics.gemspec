@@ -22,7 +22,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "shotgun"
   s.add_development_dependency "rack-test"
 
-  s.add_dependency "eventmachine"
+  s.add_dependency "eventmachine", ">= 1.0.0.beta.4"
   s.add_dependency "daemons"
   s.add_dependency "mongo", '~> 1.6'
   s.add_dependency "bson", '~> 1.6'
