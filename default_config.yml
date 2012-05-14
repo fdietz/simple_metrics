@@ -19,11 +19,11 @@ buckets:
     - name: 'stats_per_10s'
       seconds: 10
       capped: true
-      size: 180_000 # 6*30 = 180 (30 min ttl), 180 * 100 = 18.000 (100 data points), 18.000 * 10 (bytes each) = 180.000
+      size: 180000 # 6*30 = 180 (30 min ttl), 180 * 100 = 18.000 (100 data points), 18.000 * 10 (bytes each) = 180.000
     - name: 'stats_per_1min'
       seconds: 60
       capped: true
-      size: 120_000 # 60*3 = 180 (3h ttl), 120 * 100 = 18.000 (100 data points), 18.000 * 10 (bytes each) = 180.000
+      size: 120000 # 60*3 = 180 (3h ttl), 120 * 100 = 18.000 (100 data points), 18.000 * 10 (bytes each) = 180.000
     - name: 'stats_per_10min'
       seconds: 600
       size: 0 
