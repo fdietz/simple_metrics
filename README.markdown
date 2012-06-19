@@ -1,3 +1,6 @@
+WARNING: This project is DISCONTINUED. There are other tools which serve similar purpose as for example graphite, statsd, batsd, etc.
+
+
 SimpleMetrics
 =============
 
@@ -11,7 +14,6 @@ SimpleMetrics is written in Ruby and packaged as a gem.
 
 The current version is considered ALPHA. 
 
-There is a rails app provided to visualize the graphs in dashboards.
 
 SimpleMetrics Server
 --------------------
